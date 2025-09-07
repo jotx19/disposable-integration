@@ -126,7 +126,7 @@ export default function signInPage() {
           <Button
             variant="elevated"
             type="submit"
-            className="mt-2 w-1/2 mx-auto dark:text-black dark:border-black rounded-xl"
+            className="mt-2 w-1/2 bg-white mx-auto dark:text-black dark:border-black rounded-xl"
             disabled={isLoggingIn}
           >
             {isLoggingIn ? <Loader2 className="h-4 w-4 animate-spin" /> : "Continue"}

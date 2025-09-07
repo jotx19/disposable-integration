@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 // Type definitions
 interface User {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   picture?: string;
@@ -110,57 +110,57 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       const userRooms: Room[] = res.data.map((room: any) => ({
         ...room,
         members: room.members.map((member: any) => ({
-          id: member._id,
+          _id: member._id,   
           name: member.name,
           email: member.email,
           picture: member.picture,
         })),
         createdBy: {
-          id: room.createdBy._id,
+          _id: room.createdBy._id,
           name: room.createdBy.name,
           email: room.createdBy.email,
           picture: room.createdBy.picture,
         },
-        inviteLink: room.inviteLink, // added invite link
+        inviteLink: room.inviteLink,
       }));
       set({ userRooms });
     } catch (error) {
       console.error("Error fetching user rooms:", error);
       toast.error("Failed to fetch user rooms");
     }
-  },
+  },  
 
   getRoomExpirationTime: async (roomCodeOrId) => {
     const currentTime = Date.now();
     const state = get();
-
+  
     const cachedExpiration = state.roomExpirationTimes[roomCodeOrId];
     if (cachedExpiration && currentTime - cachedExpiration.timestamp < 10 * 60 * 1000) {
       return cachedExpiration.timeLeft;
     }
-
+  
     try {
       const url = `/room/${roomCodeOrId}/expiry`;
       const res = await axiosInstance.get(url);
       const { timeLeft } = res.data;
-
+  
+      const [hours, minutes, seconds] = timeLeft.split(":").map(Number);
+      const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+  
       set((state) => ({
         roomExpirationTimes: {
           ...state.roomExpirationTimes,
-          [roomCodeOrId]: { timeLeft, timestamp: currentTime },
+          [roomCodeOrId]: { timeLeft: totalSeconds, timestamp: currentTime },
         },
       }));
-
-      setInterval(() => {
-        get().updateExpirationTime(roomCodeOrId);
-      }, 1000);
-
-      return timeLeft;
+  
+      return totalSeconds;
     } catch (error) {
       console.error("Error fetching room expiration time:", error);
       toast.error("Failed to fetch room expiration time");
     }
   },
+  
 
   updateExpirationTime: (roomCodeOrId) => {
     const state = get();

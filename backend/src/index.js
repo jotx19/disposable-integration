@@ -19,7 +19,7 @@ connectDB();
 app.use(express.json({limit: "50mb"}));
 app.use(cookieParser());
 app.use(cors({
-  origin: ["https://flikchat.vercel.app", "http://localhost:3000"],
+  origin: ["http://localhost:3000"],
   credentials: true, 
 }));
 

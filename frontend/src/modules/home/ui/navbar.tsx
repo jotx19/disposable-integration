@@ -1,19 +1,62 @@
 "use client";
 
-import Link from "next/link";
+import { Home, LogIn, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { MessageCircleDashed } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/store/useAuthStore";
 
-export default function Navbar() {
+export default function Menu() {
+  const page = usePathname();
+  const { authUser, logout } = useAuthStore();
+
   return (
-    <header className="sticky top-4 z-50 mx-auto max-w-5xl flex items-center justify-between backdrop-blur-xl rounded-full h-14 px-2 border">
-      <Link href="/" className="font-bold px-6 text-lg">
-      <MessageCircleDashed className="inline-block mr-2 mb-1 text-amber-400" />
-      </Link>
+    <div className="fixed z-[9999] bottom-4 left-0 right-0">
+      <div className="bg-background overflow-hidden border border-border p-2 rounded-full shadow-md w-fit flex mx-auto gap-1.5">
+        {/* Feed */}
+        <Button
+          className={cn(
+            "rounded-2xl group transition",
+            page === "/" && "bg-secondary",
+          )}
+          variant="ghost"
+          asChild
+        >
+          <Link
+            href="/"
+            className="flex items-center bg-secondary justify-center rounded-full"
+          >
+            <Home className="h-6 w-6" />
+            Home
+          </Link>
+        </Button>
 
-      <Button className="px-4 py-1 rounded-full">
-        Get Started
-      </Button>
-    </header>
+        {/* Auth Buttons */}
+        {authUser ? (
+          <Button
+            className="rounded-xl m-1 group transition"
+            size="icon"
+            variant="ghost"
+            onClick={logout} // ✅ call logout directly
+          >
+            <LogOut className="!h-5 !w-5" />
+          </Button>
+        ) : (
+          <Button
+            className={cn(
+              "rounded-xl m-1 group transition",
+              page === "/sign-in" && "bg-secondary",
+            )}
+            asChild
+            size="icon"
+          >
+            <Link href="/sign-in" className="flex items-center justify-center">
+              <LogIn className="!h-5 !w-5" />
+            </Link>
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }
