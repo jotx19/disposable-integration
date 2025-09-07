@@ -1,0 +1,58 @@
+"use client"
+import { useTheme } from "next-themes"
+import { Sun, Moon } from "lucide-react"
+import { useEffect, useState } from "react"
+import { Poppins } from "next/font/google"
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["700"],
+})
+
+export const Footer = () => {
+  const { theme, setTheme } = useTheme()
+  const themes: ("light" | "dark")[] = ["light", "dark"]
+
+  const icons = {
+    light: <Sun className="size-3 text-black dark:text-white" />,
+    dark: <Moon className="size-3 text-black dark:text-white" />,
+  }
+
+  const [activeTheme, setActiveTheme] = useState<"light" | "dark">("light")
+
+  useEffect(() => {
+    if (theme === "light" || theme === "dark") {
+      setActiveTheme(theme)
+    } else {
+      setTheme("light")
+      setActiveTheme("light")
+    }
+  }, [theme, setTheme])
+
+  return (
+    <footer className="flex border-t justify-between font-medium p-3 items-center">
+      <div className="flex items-center gap-1">
+        <span
+          className={`md:text-md text-xs dark:text-muted-foreground ${poppins.className}`}
+        >
+          <p>disposable[/]</p>
+        </span>
+      </div>
+
+      <div className="flex items-center border-[0.2px] p-0.5 gap-1 border-gray-400 text-muted-foreground rounded-full">
+        {themes.map((t) => (
+          <button
+            key={t}
+            onClick={() => setTheme(t)}
+            className={`p-1 rounded-full transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 ${
+              activeTheme === t ? "bg-gray-200 dark:bg-gray-600" : ""
+            }`}
+            title={t}
+          >
+            {icons[t]}
+          </button>
+        ))}
+      </div>
+    </footer>
+  )
+}
