@@ -33,11 +33,11 @@ export const ChatHeader: React.FC = () => {
   ).length;
 
   return (
-    <div className="flex justify-center p-2">
+    <div className="flex justify-center p-2 bg-transparent">
       <div className="flex items-center justify-between w-full max-w-6xl">
         <Button
           variant="outline"
-          className="flex items-center gap-2 rounded-full mx-11 h-9 px-4"
+          className="flex items-center gap-2 rounded-full backdrop-blur-sm mix mx-11 h-9 px-4"
           onClick={() => setIsModalOpen(true)}
         >
           <UserIcon className="h-4 w-4" size={16} />

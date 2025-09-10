@@ -22,11 +22,10 @@ const JoinRoomPage: React.FC<JoinPageProps> = ({ params }) => {
 
       if (room) {
         toast.success(`Joined room "${room.name}" successfully!`);
-        // redirect to chat page using the roomCode
         router.push(`/chat/${room.roomCode}`);
       } else {
         toast.error("Failed to join room. Room may not exist or already joined.");
-        router.push("/"); // fallback to homepage
+        router.push("/");
       }
     };
 

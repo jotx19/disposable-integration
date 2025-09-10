@@ -6,6 +6,7 @@ import {
   PanelLeftIcon,
   MessageCircleIcon,
   BadgeCheckIcon,
+  ArrowUpRightIcon,
 } from "lucide-react";
 
 import {
@@ -53,7 +54,7 @@ export const ChatSidebar: React.FC<{ children?: React.ReactNode }> = ({ children
 
   return (
     <SidebarProvider open={open} onOpenChange={setOpen}>
-      <div className="fixed top-5 left-4 z-99">
+      <div className="fixed md:top-4 top-5.5 left-4 z-99">
         <SidebarTrigger className="rounded-xl p-4 bg-white/70 text-black">
           <PanelLeftIcon />
         </SidebarTrigger>
@@ -61,7 +62,7 @@ export const ChatSidebar: React.FC<{ children?: React.ReactNode }> = ({ children
 
       <Sidebar collapsible="offcanvas" className="z-40">
         <SidebarHeader>
-          <div className="flex items-center gap-2 px-2 py-2 md:w-[25vh] w-[18vh md:justify-end h-[7vh] text-lg font-bold mx-auto justify-center">
+          <div className="flex items-center gap-2 px-2 py-2 md:w-[25vh] w-[18vh] md:justify-end h-[7vh] text-lg font-bold mx-auto justify-center">
           {authUser && (
           <Badge
           variant="secondary"
@@ -91,8 +92,8 @@ export const ChatSidebar: React.FC<{ children?: React.ReactNode }> = ({ children
                     onClick={() => handleRoomClick(room._id)}
                   >
                     <div className="flex items-center px-4 w-full mx-auto text-xl gap-2">
-                      <MessageCircleIcon className="size-5 shrink-0" />
                       <span className="font-semibold">{room.name}</span>
+                      <ArrowUpRightIcon className="size-6 !w-4 !h-4 shrink-0" />
                     </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

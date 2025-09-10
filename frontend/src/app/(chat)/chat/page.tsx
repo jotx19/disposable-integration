@@ -30,19 +30,19 @@ const ChatLandingPage = () => {
   }, [getUserRooms, checkAuth, authUser]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#0A0A0A] p-4">
-      <div className="w-full max-w-4xl h-[74vh] bg-[#171717] rounded-xl shadow-lg p-6 flex flex-col">
+    <div className="flex items-center justify-center min-h-screen dark:bg-[#0A0A0A] p-4">
+      <div className="w-full max-w-4xl h-[74vh] bg-gray-200 dark:bg-[#171717] rounded-xl shadow-sm p-6 flex flex-col">
         <div className="flex flex-col mb-4">
           {isCheckingAuth ? (
             <div className="h-8 w-40 mx-auto bg-gray-600 rounded-full animate-pulse mb-2"></div>
           ) : authUser ? (
             <Badge
-            variant={'secondary'} className="md:text-3xl mb-1 text-xl font-semibold text-center mx-auto text-white">
+            variant={'secondary'} className="md:text-3xl mb-1 text-xl font-semibold text-center mx-auto">
               Hello, {authUser.name}
             </Badge>
           ) : (
             <Badge
-            variant={'secondary'} className="md:text-3xl mb-1 text-xl font-semibold text-center mx-auto text-white">
+            variant={'secondary'} className="md:text-3xl mb-1 text-xl font-semibold text-center mx-auto ">
               Hello, guest
             </Badge>
           )}
