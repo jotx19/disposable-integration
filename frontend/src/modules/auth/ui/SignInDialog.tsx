@@ -25,7 +25,6 @@ export default function signInPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (authUser) router.push("/");
   }, [authUser]);
@@ -63,7 +62,7 @@ export default function signInPage() {
 
         <p className="text-base max-w-xs text-foreground/80 -mt-2.5">
           Sign in to your account to continue. Don't have an account?{" "}
-          <Link className="text-foreground underline" href="/signup">
+          <Link className="text-foreground underline" href="/sign-up">
             SignUp
           </Link>
         </p>

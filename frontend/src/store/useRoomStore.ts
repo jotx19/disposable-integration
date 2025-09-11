@@ -107,28 +107,36 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   getUserRooms: async () => {
     try {
       const res = await axiosInstance.get("/room/users");
-      const userRooms: Room[] = res.data.map((room: any) => ({
+      const rawRooms = Array.isArray(res.data) ? res.data : res.data.rooms || [];
+  
+      const userRooms: Room[] = rawRooms.map((room: any) => ({
         ...room,
-        members: room.members.map((member: any) => ({
-          _id: member._id,   
-          name: member.name,
-          email: member.email,
-          picture: member.picture,
-        })),
-        createdBy: {
-          _id: room.createdBy._id,
-          name: room.createdBy.name,
-          email: room.createdBy.email,
-          picture: room.createdBy.picture,
-        },
-        inviteLink: room.inviteLink,
+        members: Array.isArray(room.members)
+          ? room.members.map((member: any) => ({
+              _id: member._id,
+              name: member.name,
+              email: member.email,
+              picture: member.picture,
+            }))
+          : [],
+        createdBy: room.createdBy
+          ? {
+              _id: room.createdBy._id,
+              name: room.createdBy.name,
+              email: room.createdBy.email,
+              picture: room.createdBy.picture,
+            }
+          : null,
+        inviteLink: room.inviteLink || null,
       }));
+  
       set({ userRooms });
     } catch (error) {
       console.error("Error fetching user rooms:", error);
-      toast.error("Failed to fetch user rooms");
+      set({ userRooms: [] }); 
     }
-  },  
+  },
+  
 
   getRoomExpirationTime: async (roomCodeOrId) => {
     const currentTime = Date.now();

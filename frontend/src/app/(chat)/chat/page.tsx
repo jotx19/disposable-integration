@@ -9,25 +9,23 @@ import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/modules/home/ui/navbar";
 
-
 const ChatLandingPage = () => {
   const { userRooms, getUserRooms } = useRoomStore();
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await checkAuth();
-        if (authUser) {
-          await getUserRooms();
-        }
-      } catch (err) {
-        toast.error("Failed to load rooms.");
-      }
-    };
+    checkAuth().catch(() => {
+      toast.error("Failed to check authentication.");
+    });
+  }, [checkAuth]);
 
-    fetchData();
-  }, [getUserRooms, checkAuth, authUser]);
+  useEffect(() => {
+    if (authUser) {
+      getUserRooms().catch(() => {
+        toast.error("Failed to load rooms.");
+      });
+    }
+  }, [authUser, getUserRooms]);
 
   return (
     <div className="flex items-center justify-center min-h-screen dark:bg-[#0A0A0A] p-4">
@@ -37,12 +35,16 @@ const ChatLandingPage = () => {
             <div className="h-8 w-40 mx-auto bg-gray-600 rounded-full animate-pulse mb-2"></div>
           ) : authUser ? (
             <Badge
-            variant={'secondary'} className="md:text-3xl mb-1 text-xl font-semibold text-center mx-auto">
+              variant="secondary"
+              className="md:text-3xl mb-1 text-xl font-semibold text-center mx-auto"
+            >
               Hello, {authUser.name}
             </Badge>
           ) : (
             <Badge
-            variant={'secondary'} className="md:text-3xl mb-1 text-xl font-semibold text-center mx-auto ">
+              variant="secondary"
+              className="md:text-3xl mb-1 text-xl font-semibold text-center mx-auto "
+            >
               Hello, guest
             </Badge>
           )}
@@ -50,7 +52,6 @@ const ChatLandingPage = () => {
             Groups you are joined will be listed below
           </p>
         </div>
-
         <div className="flex justify-end mb-4">
           <Link
             href="/chat/create"
@@ -61,9 +62,9 @@ const ChatLandingPage = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {authUser && userRooms.length === 0 ? (
+          {isCheckingAuth ? (
             <ul className="space-y-3 pt-9 md:w-2/3 mx-auto">
-              {Array.from({ length: 9 }).map((_, idx) => (
+              {Array.from({ length: 5 }).map((_, idx) => (
                 <li
                   key={idx}
                   className="flex justify-between items-center bg-gray-800 rounded-xl p-4"
@@ -73,8 +74,18 @@ const ChatLandingPage = () => {
                 </li>
               ))}
             </ul>
+          ) : authUser && userRooms.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-gray-400">
+              <p className="">You have not joined any rooms yet.</p>
+              <Link
+                href="/chat/create"
+                className="text-blue-500 hover:underline"
+              >
+                Create your first room
+              </Link>
+            </div>
           ) : authUser ? (
-            <ul className="space-y-3 pt-20 md:w-2/3 mx-auto">
+            <ul className="space-y-3 pt-6 md:w-2/3 mx-auto">
               {userRooms.map((room) => (
                 <li
                   key={room._id}
@@ -92,7 +103,7 @@ const ChatLandingPage = () => {
             </ul>
           ) : (
             <ul className="space-y-3 w-2/3 mx-auto">
-              {Array.from({ length: 9 }).map((_, idx) => (
+              {Array.from({ length: 5 }).map((_, idx) => (
                 <li
                   key={idx}
                   className="flex justify-between items-center bg-gray-800 rounded-xl p-4"
@@ -105,7 +116,7 @@ const ChatLandingPage = () => {
           )}
         </div>
       </div>
-      <Header/>
+      <Header />
     </div>
   );
 };

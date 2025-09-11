@@ -60,7 +60,6 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       } relative`}
       onClick={() => toggleSelectedMessage(message._id)}
     >
-      {/* Sender avatar */}
       {!isAuthUser && (
         <div className="flex flex-col items-center w-10 mr-2">
           <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gray-200">
@@ -80,7 +79,6 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         </div>
       )}
 
-      {/* Message content */}
       <div className="flex flex-col max-w-[70%] space-y-1">
         <div
           className={`px-4 py-2 rounded-xl break-words relative transition-all duration-200 ${
@@ -94,13 +92,11 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         >
           {message.text}
 
-          {/* Optional gradient to indicate clipped content */}
           {!showFull && isLongMessage && (
             <div className="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-white to-transparent dark:from-gray-900 pointer-events-none" />
           )}
         </div>
 
-        {/* Read more button */}
         {!showFull && isLongMessage && (
           <p
             className="ml-2 py-0 p-0 self-start"
@@ -112,12 +108,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             Read more
           </p>
         )}
-
-        {/* Message timestamp */}
         <span className="text-xs text-gray-400">{messageTime}</span>
       </div>
 
-      {/* Delete button for selected auth user messages */}
       {isAuthUser && selectedMessages.includes(message._id) && (
         <div className="absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center">
           <Tooltip>
