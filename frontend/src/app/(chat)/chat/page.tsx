@@ -75,15 +75,17 @@ const ChatLandingPage = () => {
               ))}
             </ul>
           ) : authUser && userRooms.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-400">
-              <p className="">You have not joined any rooms yet.</p>
-              <Link
-                href="/chat/create"
-                className="text-blue-500 hover:underline"
-              >
-                Create your first room
-              </Link>
-            </div>
+            <ul className="space-y-3 w-2/3 mx-auto">
+              {Array.from({ length: 5 }).map((_, idx) => (
+                <li
+                  key={idx}
+                  className="flex justify-between items-center bg-gray-800 rounded-xl p-4"
+                >
+                  <div className="h-4 w-1/2 bg-gray-600 rounded animate-pulse"></div>
+                  <div className="h-4 w-6 bg-gray-600 rounded animate-pulse"></div>
+                </li>
+              ))}
+            </ul>
           ) : authUser ? (
             <ul className="space-y-3 pt-6 md:w-2/3 mx-auto">
               {userRooms.map((room) => (

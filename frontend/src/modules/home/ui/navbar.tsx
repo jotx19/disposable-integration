@@ -14,8 +14,7 @@ export default function Menu() {
 
   return (
     <div className="fixed z-[9999] bottom-4 left-0 right-0">
-      <div className="bg-background overflow-hidden border border-border p-2 rounded-full shadow-md w-fit flex mx-auto gap-1.5">
-        {/* Home */}
+      <div className=" backdrop-blur-lg overflow-hidden border border-border p-2 rounded-full shadow-md w-fit flex mx-auto gap-1.5">
         <Button
           className={cn(
             "rounded-2xl group transition",

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 export default function LandingPage() {
   const [roomCode, setRoomCode] = useState("");
@@ -17,15 +16,15 @@ export default function LandingPage() {
   return (
     <main
       className="flex min-h-[80vh] items-center justify-center
-      bg-[linear-gradient(90deg,#007b84_0%,#d35c2f_50%,#b23a68_100%)]
+      md:bg-[linear-gradient(90deg,#007b84_0%,#d35c2f_50%,#b23a68_100%)] bg-[linear-gradient(45deg,#007b84_0%,#d35c2f_50%,#b23a68_100%)]
       rounded-3xl m-10 p-6"
     >
-      <div className="max-w-4xl w-full text-center space-y-6">
-        <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-white">
+      <div className="max-w-3xl w-full text-center space-y-6">
+        <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white">
           Disposable Chatrooms
         </h1>
 
-        <p className="text-lg font-mono text-gray-200 tracking-tight">
+        <p className="md:text-lg text-sm font-mono text-gray-200 tracking-tight">
           Create a private chatroom instantly. Share the link, no
           hassle. Conversations disappear when you are done.
         </p>
@@ -34,7 +33,7 @@ export default function LandingPage() {
           <Button
           onClick={() => router.push('/chat')}
             variant="elevated"
-            className="w-full sm:w-1/2 bg-white text-black dark:border-gray-200 rounded-md"
+            className="w-full sm:w-1/2 bg-black text-white rounded-lg"
           >
             Create Room
           </Button>
@@ -45,11 +44,11 @@ export default function LandingPage() {
               placeholder="Enter Room Code"
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-full bg-black text-white"
+              className="flex-1 px-3 py-2 rounded-l-full bg-black text-white"
             />
             <Button
               variant="elevated"
-              className="text-white bg-black"
+              className="text-white rounded-r-3xl rounded-l-none bg-black"
               onClick={handleJoin}
             >
               Join
