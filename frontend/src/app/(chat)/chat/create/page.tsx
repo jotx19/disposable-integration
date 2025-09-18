@@ -45,7 +45,7 @@ export default function CreateRoomPage() {
         {!inviteLink ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-4">
             <div className="flex flex-col items-center">
-              <h1 className="md:text-4xl text-3xl text-gray-900 dark:text-white">
+              <h1 className="md:text-5xl text-3xl text-gray-900 dark:text-white">
                 Create a Room
               </h1>
               <p className="text-muted-foreground md:text-xs text-[10px]">
@@ -55,7 +55,7 @@ export default function CreateRoomPage() {
 
             <DotLottieReact
               src="/room2.lottie"
-              className="md:w-[20vw] w-[70vw] h-[40vh]"
+              className="md:w-auto w-[70vw] h-[40vh]"
               autoplay
               loop
             />
