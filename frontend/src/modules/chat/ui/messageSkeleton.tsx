@@ -17,15 +17,15 @@ const MessageSkeleton: React.FC = () => {
           >
             <div className="flex items-center space-x-2">
               {!isUserMessage && (
-                <div className="w-10 h-10 rounded-full bg-gray-900 animate-pulse" />
+                <div className="w-10 h-10 rounded-full bg-[#F5F5F5] dark:bg-gray-900 animate-pulse" />
               )}
               <div>
-                <div className="mb-1 h-4 w-16 bg-gray-900 animate-pulse rounded" />
-                <div className="h-16 w-[300px] bg-gray-900 animate-pulse rounded-lg" />
+                <div className="mb-1 h-4 w-16 bg-[#F5F5F5] dark:bg-gray-900 animate-pulse rounded" />
+                <div className="h-16 w-[300px] bg-[#F5F5F5] dark:bg-gray-900 animate-pulse rounded-lg" />
               </div>
 
               {isUserMessage && (
-                <div className="w-10 h-10 rounded-full bg-gray-900 animate-pulse" />
+                <div className="w-10 h-10 rounded-full bg-[#F5F5F5] dark:bg-gray-900 animate-pulse" />
               )}
             </div>
           </div>

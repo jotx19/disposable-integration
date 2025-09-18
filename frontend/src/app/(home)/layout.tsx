@@ -5,7 +5,7 @@ import Header from "@/modules/home/ui/navbar";
 
 
 export const metadata: Metadata = {
-  title: "Disposable-chatroom",
+  title: "Dispose [:/]",
   description: "Lets-dispose",
 };
 
@@ -15,7 +15,7 @@ interface Props {
 
 const Layout = async ({ children }: Props) => {
   return (
-    <ThemeProvider attribute="class" enableSystem>
+    <ThemeProvider attribute="class"  enableSystem>
       <div className="flex flex-col min-h-screen">{children}
         <Header/>
       </div>

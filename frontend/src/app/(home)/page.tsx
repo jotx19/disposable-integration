@@ -33,7 +33,7 @@ export default function LandingPage() {
           <Button
           onClick={() => router.push('/chat')}
             variant="elevated"
-            className="w-full sm:w-1/2 bg-black text-white rounded-lg"
+            className="w-full sm:w-1/2 bg-black text-white rounded-full"
           >
             Create Room
           </Button>

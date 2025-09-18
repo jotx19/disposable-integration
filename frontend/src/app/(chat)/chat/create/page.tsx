@@ -40,8 +40,8 @@ export default function CreateRoomPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-200 dark:bg-[#0A0A0A] p-6">
-      <Card className="w-full max-w-4xl border-none h-[74vh] flex flex-col rounded-2xl shadow-lg bg-gray-100 dark:bg-[#171717] text-center p-8">
+    <div className="min-h-screen flex items-center justify-center dark:bg-[#0A0A0A] p-6">
+      <Card className="w-full max-w-4xl border-none h-[74vh] flex flex-col rounded-2xl shadow-lg bg-[#FAFAFA] dark:bg-[#171717] text-center p-8">
         {!inviteLink ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-4">
             <div className="flex flex-col items-center">
@@ -73,7 +73,7 @@ export default function CreateRoomPage() {
                 size="sm"
                 onClick={handleCreate}
                 disabled={isCreatingRoom}
-                className="w-1/3 flex items-center justify-center gap-2 py-2 rounded-lg text-black hover:bg-yellow-500 transition"
+                className="w-1/3 flex items-center justify-center gap-2 py-2 rounded-lg dark:text-black text-white hover:bg-yellow-500  transition"
               >
                 {isCreatingRoom && <Loader2 className="h-4 w-4 animate-spin" />}
                 Create

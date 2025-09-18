@@ -29,7 +29,7 @@ const ChatLandingPage = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen dark:bg-[#0A0A0A] p-4">
-      <div className="w-full max-w-4xl h-[74vh] bg-gray-200 dark:bg-[#171717] rounded-xl shadow-sm p-6 flex flex-col">
+      <div className="w-full max-w-4xl h-[74vh] bg-[#FAFAFA] dark:bg-[#171717] rounded-xl shadow-lg p-6 flex flex-col">
         <div className="flex flex-col mb-4">
           {isCheckingAuth ? (
             <div className="h-8 w-40 mx-auto bg-gray-600 rounded-full animate-pulse mb-2"></div>
@@ -91,9 +91,9 @@ const ChatLandingPage = () => {
               {userRooms.map((room) => (
                 <li
                   key={room._id}
-                  className="flex justify-between items-center bg-gray-800 rounded-xl p-4 hover:bg-gray-700 transition cursor-pointer"
+                  className="flex justify-between items-center bg-gray-200 hover:bg-gray-100 dark:bg-gray-800 rounded-xl p-4 dark:hover:bg-gray-700 hover:text-white transition cursor-pointer"
                 >
-                  <span className="text-white font-medium">{room.name}</span>
+                  <span className="dark:text-white font-medium">{room.name}</span>
                   <Link
                     href={`/chat/${room.roomCode}`}
                     className="text-gray-400 hover:text-white"

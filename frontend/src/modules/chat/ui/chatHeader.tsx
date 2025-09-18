@@ -54,7 +54,7 @@ export const ChatHeader: React.FC = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 backdrop-blur-lg bg-opacity-50 flex items-center justify-center z-50">
-          <div className="p-6 bg-[#242423] rounded-3xl w-full max-w-lg flex flex-col items-center">
+          <div className="p-6 dark:bg-[#242423] bg-[#F5F5F5] rounded-3xl w-full max-w-lg flex flex-col items-center">
             <div className="flex w-full justify-between mb-4">
               <h2 className="text-3xl font-bold text-center w-full">Room Members</h2>
               <button
@@ -69,7 +69,7 @@ export const ChatHeader: React.FC = () => {
               {selectedRoom.members.map(member => (
                 <li
                   key={member._id}
-                  className="flex justify-between items-center p-2 bg-gray-100 rounded-lg"
+                  className="flex justify-between items-center p-2 bg-gray-200 rounded-lg"
                 >
                   <span className="text-black">{member.name}</span>
                   <span
