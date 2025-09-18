@@ -8,12 +8,12 @@ import {
   Loader2,
   Link as LinkIcon,
   ExternalLink,
-  ArrowRight,
   Verified,
   Check,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 export default function CreateRoomPage() {
   const [roomName, setRoomName] = useState("");
@@ -43,9 +43,8 @@ export default function CreateRoomPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-200 dark:bg-[#0A0A0A] p-6">
       <Card className="w-full max-w-4xl border-none h-[74vh] flex flex-col rounded-2xl shadow-lg bg-gray-100 dark:bg-[#171717] text-center p-8">
         {!inviteLink ? (
-          <div className="flex flex-col h-full w-full">
-            {/* Top Section */}
-            <div className="flex flex-col items-center mb-6">
+          <div className="flex-1 flex flex-col items-center justify-center gap-4">
+            <div className="flex flex-col items-center">
               <h1 className="md:text-4xl text-3xl text-gray-900 dark:text-white">
                 Create a Room
               </h1>
@@ -54,15 +53,14 @@ export default function CreateRoomPage() {
               </p>
             </div>
 
-            {/* Middle Empty Section */}
-            <div className="flex-1 flex items-center justify-center">hi
-              {/* Placeholder div for future use (illustration/animation) */}
-              <div className="w-full h-full flex items-center justify-center">hi
-                {/* empty for now */}
-              </div>hi
-            </div>
+            <DotLottieReact
+              src="/room2.lottie"
+              className="md:w-[20vw] w-[70vw] h-[40vh]"
+              autoplay
+              loop
+            />
 
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-4 w-full">
               <input
                 type="text"
                 value={roomName}
@@ -83,17 +81,17 @@ export default function CreateRoomPage() {
             </div>
           </div>
         ) : (
-          <>
-            <Badge className="text-lg rounded-full mb-6">
-              <Verified className="text-blue-200 fill-blue-600 mr-2" />
+          <div className="flex-1 flex flex-col items-center justify-center gap-8">
+            <Badge className="text-lg flex items-center mx-auto rounded-full">
+              <Verified className="text-blue-200 fill-blue-600 !h-8 !w-8 mr-2" />
               Room Created Successfully!
             </Badge>
 
-            <div className="w-full border border-dashed rounded-2xl flex items-center justify-between gap-4 p-5">
+            <div className="w-full border border-dashed rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 p-5">
               <Button
                 onClick={handleCopy}
                 variant="secondary"
-                className="flex-1 flex items-center justify-center text-lg w-full h-12 rounded-xl"
+                className="w-full md:flex-1 flex items-center justify-center text-lg h-12 rounded-xl"
               >
                 {copied ? (
                   <>
@@ -108,13 +106,16 @@ export default function CreateRoomPage() {
                 )}
               </Button>
 
-              <Button asChild className="flex-1 h-12 text-lg rounded-xl">
+              <Button
+                asChild
+                className="w-full md:flex-1 h-12 text-lg rounded-xl"
+              >
                 <a href="/chat">
                   Visit Room <ExternalLink className="h-5 w-5 ml-2" />
                 </a>
               </Button>
             </div>
-          </>
+          </div>
         )}
       </Card>
     </div>
