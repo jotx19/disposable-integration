@@ -63,23 +63,36 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     set({ isCreatingRoom: true });
     try {
       const res = await axiosInstance.post("/room/create", data);
-      const room: Room = res.data.room;
-
-      if (res.data?.message) toast.success(res.data.message);
-
-      set({
-        createdRoomCode: room.roomCode,
-        rooms: [...get().rooms, room],
-      });
-
-      return room;
+  
+      if (res.status === 200 && res.data?.roomCode) {
+        if (res.data?.message) toast.success(res.data.message);
+  
+        const room: Room = {
+          _id: res.data.roomId,
+          name: data.name,
+          roomCode: res.data.roomCode,
+          createdBy: { _id: "", name: "", email: "" },
+          members: [],
+          inviteLink: res.data.inviteLink,
+        };
+  
+        set({
+          createdRoomCode: room.roomCode,
+          rooms: [...get().rooms, room],
+        });
+  
+        return room;
+      } else {
+        toast.error(res.data?.message || "Failed to create room");
+      }
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to create room");
     } finally {
       set({ isCreatingRoom: false });
     }
   },
-
+  
+  
   joinRoom: async (roomCode) => {
     set({ isJoiningRoom: true });
     try {

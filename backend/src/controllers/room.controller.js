@@ -37,7 +37,7 @@ export const createRoom = async (req, res) => {
 
     await room.save();
 
-    res.status(201).json({
+    res.status(200).json({
       message: "Room created successfully",
       roomCode: room.roomCode,
       roomId: room._id,

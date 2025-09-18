@@ -48,7 +48,7 @@ const ChatLandingPage = () => {
               Hello, guest
             </Badge>
           )}
-          <p className="md:text-sm text-[8px] text-muted-foreground text-center">
+          <p className="md:text-sm text-[9px] text-muted-foreground text-center">
             Groups you are joined will be listed below
           </p>
         </div>
@@ -75,7 +75,7 @@ const ChatLandingPage = () => {
               ))}
             </ul>
           ) : authUser && userRooms.length === 0 ? (
-            <ul className="space-y-3 w-2/3 mx-auto">
+            <ul className="space-y-3 pt-9 md:w-2/3 mx-auto">
               {Array.from({ length: 5 }).map((_, idx) => (
                 <li
                   key={idx}
@@ -87,7 +87,7 @@ const ChatLandingPage = () => {
               ))}
             </ul>
           ) : authUser ? (
-            <ul className="space-y-3 pt-6 md:w-2/3 mx-auto">
+            <ul className="space-y-3 md:w-2/3 mx-auto">
               {userRooms.map((room) => (
                 <li
                   key={room._id}
