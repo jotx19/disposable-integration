@@ -45,7 +45,7 @@ export const ChatSidebar: React.FC<{ children?: React.ReactNode }> = ({ children
     fetchData();
   }, [getUserRooms, checkAuth]);
 
-  const handleRoomClick = (roomId: string) => {
+    const handleRoomClick = (roomId: string) => {
     const room = userRooms.find((room) => room._id === roomId);
     if (!room) return;
     setSelectedRoom(room); 

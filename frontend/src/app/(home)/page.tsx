@@ -33,7 +33,7 @@ export default function LandingPage() {
           <Button
           onClick={() => router.push('/chat')}
             variant="elevated"
-            className="w-full sm:w-1/2 bg-black text-white rounded-full"
+            className="w-full sm:w-1/2 bg-black text-white border-gray-800 rounded-full"
           >
             Create Room
           </Button>
@@ -48,7 +48,7 @@ export default function LandingPage() {
             />
             <Button
               variant="elevated"
-              className="text-white rounded-r-3xl rounded-l-none bg-black"
+              className="text-white rounded-r-3xl border-gray-800 rounded-l-none bg-black"
               onClick={handleJoin}
             >
               Join

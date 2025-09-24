@@ -20,10 +20,10 @@ export const ChatHeader: React.FC = () => {
 
   useEffect(() => {
     if (!roomCode) return;
-    const room = userRooms.find(r => r._id === roomCode);
+    const room = userRooms.find(room => room._id === roomCode);
     if (!room) return;
 
-    setSelectedRoom({ ...room, createdBy: room.createdBy ?? undefined });
+    setSelectedRoom(room);
   }, [roomCode, userRooms, setSelectedRoom]);
 
   if (!selectedRoom) return null;

@@ -24,7 +24,7 @@ export interface Room {
   name: string;
   members: User[];
   roomCode?: string;
-  createdBy?: User;
+  createdBy?: User | null;
   inviteLink?: string;
 }
 
