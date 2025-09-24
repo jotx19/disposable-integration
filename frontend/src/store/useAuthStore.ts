@@ -5,21 +5,12 @@ import { toast } from "sonner";
 
 const BASE_URL = "http://localhost:5001";
 
-// Define the User type (adjust fields as per your backend)
+// User type
 export interface AuthUser {
   _id: string;
   name: string;
   email: string;
   profilepic?: string;
-}
-
-// Custom type for API errors
-interface ApiError {
-  response?: {
-    data?: {
-      message?: string;
-    };
-  };
 }
 
 interface AuthState {
@@ -71,9 +62,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ authUser: res.data });
       toast.success("Account created successfully");
       get().connectSocket();
-    } catch (error: unknown) {
-      const err = error as ApiError;
-      toast.error(err.response?.data?.message || "Signup failed");
+    } catch {
+      toast.error("Signup failed");
     } finally {
       set({ isSigningUp: false });
     }
@@ -87,9 +77,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       toast.success("Logged in successfully");
       get().connectSocket();
       return res.data;
-    } catch (error: unknown) {
-      const err = error as ApiError;
-      toast.error(err.response?.data?.message || "Login failed");
+    } catch {
+      toast.error("Login failed");
       return null;
     } finally {
       set({ isLoggingIn: false });
@@ -107,7 +96,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const checkIfClosed = setInterval(() => {
         if (googleAuthWindow?.closed) {
           clearInterval(checkIfClosed);
-          axiosInstance.get<AuthUser>("api/auth/google")
+          axiosInstance
+            .get<AuthUser>("api/auth/google")
             .then((res) => {
               set({ authUser: res.data });
               toast.success("Logged in with Google successfully!");
@@ -131,9 +121,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ authUser: null });
       toast.success("Logged out successfully");
       get().disconnectSocket();
-    } catch (error: unknown) {
-      const err = error as ApiError;
-      toast.error(err.response?.data?.message || "Logout failed");
+    } catch {
+      toast.error("Logout failed");
     }
   },
 
@@ -141,9 +130,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { authUser, socket } = get();
     if (!authUser || socket?.connected) return;
 
-    const newSocket = io(BASE_URL, {
-      query: { userId: authUser._id },
-    });
+    const newSocket = io(BASE_URL, { query: { userId: authUser._id } });
 
     newSocket.connect();
     set({ socket: newSocket });
@@ -167,9 +154,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const res = await axiosInstance.put<AuthUser>("/auth/update-profile", data);
       set({ authUser: res.data });
       toast.success("Profile updated successfully");
-    } catch (error: unknown) {
-      const err = error as ApiError;
-      toast.error(err.response?.data?.message || "Failed to update profile");
+    } catch {
+      toast.error("Failed to update profile");
     } finally {
       set({ isUpdatingProfile: false });
     }
