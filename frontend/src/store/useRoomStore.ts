@@ -24,6 +24,23 @@ interface RoomExpiration {
   timestamp: number;
 }
 
+// Temporary types for API response
+interface RawMember {
+  _id: string;
+  name: string;
+  email: string;
+  picture?: string;
+}
+
+interface RawRoom {
+  _id: string;
+  name: string;
+  roomCode: string;
+  createdBy?: RawMember;
+  members?: RawMember[];
+  inviteLink?: string;
+}
+
 interface RoomStore {
   rooms: Room[];
   userRooms: Room[];
@@ -118,12 +135,14 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   getUserRooms: async () => {
     try {
       const res = await axiosInstance.get("/room/users");
-      const rawRooms = Array.isArray(res.data) ? res.data : res.data.rooms || [];
+      const rawRooms: RawRoom[] = Array.isArray(res.data) ? res.data : res.data.rooms || [];
 
-      const userRooms: Room[] = rawRooms.map((room: any) => ({
-        ...room,
+      const userRooms: Room[] = rawRooms.map((room) => ({
+        _id: room._id,
+        name: room.name,
+        roomCode: room.roomCode,
         members: Array.isArray(room.members)
-          ? room.members.map((member: any) => ({
+          ? room.members.map((member) => ({
               _id: member._id,
               name: member.name,
               email: member.email,
