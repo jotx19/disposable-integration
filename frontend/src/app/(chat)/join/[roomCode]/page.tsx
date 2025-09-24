@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useRoomStore } from "@/store/useRoomStore";
 import { toast } from "sonner";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
@@ -9,13 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
-interface JoinPageProps {
-  params: { roomCode: string };
-}
-
-const JoinRoomPage: React.FC<JoinPageProps> = ({ params }) => {
+const JoinRoomPage = () => {
   const router = useRouter();
-  const { roomCode } = params;
+  const params = useParams();
+  const roomCode = Array.isArray(params?.roomCode) ? params.roomCode[0] : params?.roomCode;
   const { joinRoom } = useRoomStore();
 
   const [redirecting, setRedirecting] = useState(false);
@@ -25,7 +22,7 @@ const JoinRoomPage: React.FC<JoinPageProps> = ({ params }) => {
     const join = async () => {
       if (!roomCode) return;
 
-      const room = await joinRoom(roomCode);
+      const room = await joinRoom(roomCode as string); 
 
       if (room) {
         toast.success(`Joined room "${room.name}" successfully!`);
@@ -66,7 +63,7 @@ const JoinRoomPage: React.FC<JoinPageProps> = ({ params }) => {
           autoplay
           loop
         />
-        <Badge className="text-lg text-black mb-4 rounded-xl">
+        <Badge className="text-lg text-black bg-white/30 mb-4 rounded-xl">
           Joining you in the room
         </Badge>
         {redirecting && (

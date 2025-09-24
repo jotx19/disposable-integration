@@ -14,7 +14,7 @@ interface Room {
   _id: string;
   name: string;
   roomCode: string;
-  createdBy: User | null;
+  createdBy: User;
   members: User[];
   inviteLink?: string;
 }
@@ -22,23 +22,6 @@ interface Room {
 interface RoomExpiration {
   timeLeft: number;
   timestamp: number;
-}
-
-// Temporary types for API response
-interface RawMember {
-  _id: string;
-  name: string;
-  email: string;
-  picture?: string;
-}
-
-interface RawRoom {
-  _id: string;
-  name: string;
-  roomCode: string;
-  createdBy?: RawMember;
-  members?: RawMember[];
-  inviteLink?: string;
 }
 
 interface RoomStore {
@@ -68,9 +51,10 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
 
   fetchRooms: async () => {
     try {
-      const res = await axiosInstance.get<Room[]>("room/users");
+      const res = await axiosInstance.get("room/users");
       set({ rooms: res.data });
-    } catch {
+    } catch (error) {
+      console.error("Failed to fetch rooms", error);
       toast.error("Failed to fetch rooms");
     }
   },
@@ -79,10 +63,10 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     set({ isCreatingRoom: true });
     try {
       const res = await axiosInstance.post("/room/create", data);
-
+  
       if (res.status === 200 && res.data?.roomCode) {
         if (res.data?.message) toast.success(res.data.message);
-
+  
         const room: Room = {
           _id: res.data.roomId,
           name: data.name,
@@ -91,27 +75,28 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
           members: [],
           inviteLink: res.data.inviteLink,
         };
-
+  
         set({
           createdRoomCode: room.roomCode,
           rooms: [...get().rooms, room],
         });
-
+  
         return room;
       } else {
         toast.error(res.data?.message || "Failed to create room");
       }
-    } catch {
-      toast.error("Failed to create room");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to create room");
     } finally {
       set({ isCreatingRoom: false });
     }
   },
-
+  
+  
   joinRoom: async (roomCode) => {
     set({ isJoiningRoom: true });
     try {
-      const res = await axiosInstance.post<{ room: Room; message?: string }>("/room/join", { roomCode });
+      const res = await axiosInstance.post("/room/join", { roomCode });
       const room: Room = res.data.room;
 
       if (res.data?.message) toast.success(res.data.message);
@@ -119,8 +104,8 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       set({ userRooms: [...get().userRooms, room] });
 
       return room;
-    } catch {
-      toast.error("Failed to join room");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to join room");
     } finally {
       set({ isJoiningRoom: false });
     }
@@ -135,14 +120,12 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   getUserRooms: async () => {
     try {
       const res = await axiosInstance.get("/room/users");
-      const rawRooms: RawRoom[] = Array.isArray(res.data) ? res.data : res.data.rooms || [];
-
-      const userRooms: Room[] = rawRooms.map((room) => ({
-        _id: room._id,
-        name: room.name,
-        roomCode: room.roomCode,
+      const rawRooms = Array.isArray(res.data) ? res.data : res.data.rooms || [];
+  
+      const userRooms: Room[] = rawRooms.map((room: any) => ({
+        ...room,
         members: Array.isArray(room.members)
-          ? room.members.map((member) => ({
+          ? room.members.map((member: any) => ({
               _id: member._id,
               name: member.name,
               email: member.email,
@@ -157,44 +140,48 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
               picture: room.createdBy.picture,
             }
           : null,
-        inviteLink: room.inviteLink || undefined,
+        inviteLink: room.inviteLink || null,
       }));
-
+  
       set({ userRooms });
-    } catch {
-      set({ userRooms: [] });
+    } catch (error) {
+      console.error("Error fetching user rooms:", error);
+      set({ userRooms: [] }); 
     }
   },
+  
 
   getRoomExpirationTime: async (roomCodeOrId) => {
     const currentTime = Date.now();
     const state = get();
-
+  
     const cachedExpiration = state.roomExpirationTimes[roomCodeOrId];
     if (cachedExpiration && currentTime - cachedExpiration.timestamp < 10 * 60 * 1000) {
       return cachedExpiration.timeLeft;
     }
-
+  
     try {
       const url = `/room/${roomCodeOrId}/expiry`;
-      const res = await axiosInstance.get<{ timeLeft: string }>(url);
+      const res = await axiosInstance.get(url);
       const { timeLeft } = res.data;
-
+  
       const [hours, minutes, seconds] = timeLeft.split(":").map(Number);
       const totalSeconds = hours * 3600 + minutes * 60 + seconds;
-
+  
       set((state) => ({
         roomExpirationTimes: {
           ...state.roomExpirationTimes,
           [roomCodeOrId]: { timeLeft: totalSeconds, timestamp: currentTime },
         },
       }));
-
+  
       return totalSeconds;
-    } catch {
+    } catch (error) {
+      console.error("Error fetching room expiration time:", error);
       toast.error("Failed to fetch room expiration time");
     }
   },
+  
 
   updateExpirationTime: (roomCodeOrId) => {
     const state = get();

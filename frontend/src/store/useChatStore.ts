@@ -18,7 +18,6 @@ export interface Message {
   room: string;
   createdAt: string;
 }
-
 export interface Room {
   _id: string;
   name: string;
@@ -62,10 +61,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   getRooms: async () => {
     set({ isRoomLoading: true });
     try {
-      const res = await axiosInstance.get<Room[]>("/room/users");
+      const res = await axiosInstance.get("/room/users");
       set({ rooms: res.data });
-    } catch {
-      toast.error("Failed to fetch rooms");
+    } catch (error) {
+      console.error("Failed to fetch rooms", error);
     } finally {
       set({ isRoomLoading: false });
     }
@@ -74,9 +73,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   getMessages: async (roomId) => {
     set({ isMessagesLoading: true });
     try {
-      const res = await axiosInstance.get<Message[]>(`/message/${roomId}/messages`);
+      const res = await axiosInstance.get(`/message/${roomId}/messages`);
       set({ messages: res.data });
-    } catch {
+    } catch (error) {
       toast.error("Failed to fetch messages");
     } finally {
       set({ isMessagesLoading: false });
@@ -86,13 +85,16 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   sendMessage: async (messageData) => {
     const { selectedRoom } = get();
     if (!selectedRoom?._id) {
-      toast.error("Room ID is missing!");
+      console.error("Room ID is missing!");
       return;
     }
     try {
-      await axiosInstance.post(`/message/${selectedRoom._id}/sendMessage`, messageData);
-    } catch {
-      toast.error("Failed to send message");
+      await axiosInstance.post(
+        `/message/${selectedRoom._id}/sendMessage`,
+        messageData
+      );
+    } catch (error) {
+      console.error("Failed to send message:", error);
     }
   },
 
@@ -154,7 +156,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         messages: messages.filter((m) => !toDelete.includes(m._id)),
         selectedMessages: [],
       });
-    } catch {
+    } catch (error) {
       toast.error("Failed to delete selected messages");
     }
   },
@@ -170,4 +172,5 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         : [...selectedMessages, id],
     });
   },
+  
 }));
