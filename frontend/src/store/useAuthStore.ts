@@ -3,7 +3,8 @@ import { axiosInstance } from "../lib/axios";
 import { io, Socket } from "socket.io-client";
 import { toast } from "sonner";
 
-const BASE_URL = "http://localhost:5001";
+// backend here
+const BASE_URL = "https://disposable-integration.onrender.com";
 
 // User type
 export interface AuthUser {
