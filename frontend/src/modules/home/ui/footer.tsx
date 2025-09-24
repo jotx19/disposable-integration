@@ -30,16 +30,7 @@ export const Footer = () => {
   }, [theme, setTheme])
 
   return (
-    <footer className="flex border-t justify-between font-medium p-3 items-center">
-      <div className="flex items-center gap-1">
-        <span
-          className={`md:text-md text-xs dark:text-muted-foreground ${poppins.className}`}
-        >
-          <p>disposable[/]</p>
-        </span>
-      </div>
-
-      <div className="flex items-center border-[0.2px] p-0.5 gap-1 border-gray-400 text-muted-foreground rounded-full">
+      <div className="flex items-center p-0.5 gap-1 border text-muted-foreground rounded-full">
         {themes.map((t) => (
           <button
             key={t}
@@ -53,6 +44,5 @@ export const Footer = () => {
           </button>
         ))}
       </div>
-    </footer>
   )
 }

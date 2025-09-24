@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Badge } from "@/components/ui/badge";
 import { useChatStore } from "@/store/useChatStore";
+import { Footer } from "@/modules/home/ui/footer";
 
 export const ChatSidebar: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
@@ -101,6 +102,9 @@ export const ChatSidebar: React.FC<{ children?: React.ReactNode }> = ({ children
         </SidebarContent>
 
         <SidebarFooter>
+          <div className="justify-end flex">
+          <Footer />
+          </div>
           <Button
             variant="outline"
             size="sm"
