@@ -16,12 +16,27 @@ const __dirname = path.resolve();
 
 connectDB();
 
+const allowedOrigins = [
+  "http://localhost:3000",              
+  process.env.FRONTEND_URL || "",         
+];
+
 app.use(express.json({limit: "50mb"}));
 app.use(cookieParser());
-app.use(cors({
-  origin: ["https://disposable.vercel.app"],
-  credentials: true, 
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Not allowed by CORS: ${origin}`));
+      }
+    },
+    credentials: true,
+  })
+);
 
 
 app.use("/api/auth", authRoute);
@@ -33,7 +48,7 @@ if (process.env.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, "../frontend/public")));
     
     app.get("*", (req, res) => {
-      res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+      res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
     });
   }
   

@@ -1,10 +1,7 @@
 import { create } from "zustand";
-import { axiosInstance } from "../lib/axios";
+import BASE_URL, { axiosInstance } from "../lib/axios";
 import { io, Socket } from "socket.io-client";
 import { toast } from "sonner";
-
-// backend here
-const BASE_URL = "https://disposable-integration.onrender.com";
 
 // User type
 export interface AuthUser {
