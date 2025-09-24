@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react"; // import use from react
+import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { useRoomStore } from "@/store/useRoomStore";
 import { toast } from "sonner";
@@ -16,8 +16,6 @@ interface JoinPageProps {
 const JoinRoomPage = ({ params }: JoinPageProps) => {
   const router = useRouter();
   const { joinRoom } = useRoomStore();
-
-  // unwrap the params promise
   const { roomCode } = use(params);
 
   const [redirecting, setRedirecting] = useState(false);
