@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react"; // import use from react
 import { useRouter } from "next/navigation";
 import { useRoomStore } from "@/store/useRoomStore";
 import { toast } from "sonner";
@@ -10,13 +10,15 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 interface JoinPageProps {
-  params: { roomCode: string };
+  params: Promise<{ roomCode: string }>;
 }
 
-const JoinRoomPage: React.FC<JoinPageProps> = ({ params }) => {
+const JoinRoomPage = ({ params }: JoinPageProps) => {
   const router = useRouter();
-  const { roomCode } = params;
   const { joinRoom } = useRoomStore();
+
+  // unwrap the params promise
+  const { roomCode } = use(params);
 
   const [redirecting, setRedirecting] = useState(false);
   const [countdown, setCountdown] = useState(6);
