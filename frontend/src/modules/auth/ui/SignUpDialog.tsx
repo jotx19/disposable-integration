@@ -64,7 +64,7 @@ export default function SignUpPage() {
 
         <p className="text-base max-w-xs text-foreground/80 -mt-2.5">
           Sign up to start chatting. Already have an account?{" "}
-          <Link className="text-foreground underline" href="/signin">
+          <Link className="text-foreground underline" href="/sign-in">
             Sign In
           </Link>
         </p>
