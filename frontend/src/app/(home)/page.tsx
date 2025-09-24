@@ -15,9 +15,9 @@ export default function LandingPage() {
 
   return (
     <main
-      className="flex min-h-[80vh] items-center justify-center
-      md:bg-[linear-gradient(90deg,#007b84_0%,#d35c2f_50%,#b23a68_100%)] bg-[linear-gradient(45deg,#007b84_0%,#d35c2f_50%,#b23a68_100%)]
-      rounded-3xl m-10 p-6"
+      className="flex min-h-[83vh] items-center justify-center
+      md:bg-[linear-gradient(45deg,#007b84_0%,#d35c2f_50%,#b23a68_100%)] bg-[linear-gradient(45deg,#007b84_0%,#d35c2f_50%,#b23a68_100%)]
+      rounded-3xl md:m-10 m-5 p-6"
     >
       <div className="max-w-3xl w-full text-center space-y-6">
         <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white">
