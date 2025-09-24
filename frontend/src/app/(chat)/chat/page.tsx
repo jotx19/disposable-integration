@@ -34,12 +34,10 @@ const ChatLandingPage = () => {
       });
     }
   }, [authUser, getUserRooms]);
-  
-  
-    if (isCheckingAuth || (!authUser && !isCheckingAuth)) {
-      return <SharedLogo />;
-    }
-    
+
+  if (isCheckingAuth || (!authUser && !isCheckingAuth)) {
+    return <SharedLogo />;
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen dark:bg-[#0A0A0A] p-4">
@@ -103,18 +101,25 @@ const ChatLandingPage = () => {
           ) : authUser ? (
             <ul className="space-y-3 md:w-2/3 mx-auto">
               {userRooms.map((room) => (
-                <li
+                <Link
                   key={room._id}
-                  className="flex justify-between items-center bg-gray-200 hover:bg-gray-100 dark:bg-gray-800 rounded-xl p-4 dark:hover:bg-gray-700 hover:text-white transition cursor-pointer"
+                  href={`/chat/${room.roomCode}`}
+                  className="block"
                 >
-                  <span className="dark:text-white font-medium">{room.name}</span>
-                  <Link
-                    href={`/chat/${room.roomCode}`}
-                    className="text-gray-400 hover:text-white"
+                  <li
+                    className="flex justify-between items-center bg-gray-200 hover:bg-gray-100 
+                 dark:bg-gray-800 rounded-xl p-4 
+                 dark:hover:bg-gray-700 hover:text-white transition cursor-pointer"
                   >
-                    <ArrowRight size={20} className="-rotate-45" />
-                  </Link>
-                </li>
+                    <span className="dark:text-white font-medium">
+                      {room.name}
+                    </span>
+                    <ArrowRight
+                      size={20}
+                      className="-rotate-45 text-gray-400 group-hover:text-white"
+                    />
+                  </li>
+                </Link>
               ))}
             </ul>
           ) : (

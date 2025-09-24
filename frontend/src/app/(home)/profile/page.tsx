@@ -1,35 +1,31 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import EmojiAvatar from "@/components/ui/EmojiAvatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRouter } from "next/navigation";
 import AuthLoader from "@/modules/auth/ui/AuthLoader";
 
 const ProfilePage = () => {
+  const { authUser, checkAuth, isCheckingAuth, logout } = useAuthStore();
   const router = useRouter();
-  const {
-    authUser,
-    checkAuth,
-    isCheckingAuth,
-    logout: originalLogout,
-  } = useAuthStore();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
-  const logout = () => {
-    originalLogout(); 
-    router.push("/");
-  };
+  useEffect(() => {
+    if (!isCheckingAuth && !authUser) {
+      router.replace("/");
+    }
+  }, [authUser, isCheckingAuth, router]);
 
   if (isCheckingAuth) {
     return (
-      <div className="max-w-2xl mx-auto mt-20 p-6">
+      <div className="max-w-6xl w-full mx-auto mt-20 p-6">
         <Card className="p-6 border rounded-lg">
           <div className="flex items-center gap-6">
             <Skeleton className="h-20 w-20 rounded-full" />

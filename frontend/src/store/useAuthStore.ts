@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import BASE_URL, { axiosInstance } from "../lib/axios";
+import { axiosInstance, BASE_URL } from "../lib/axios";
 import { io, Socket } from "socket.io-client";
 import { toast } from "sonner";
 

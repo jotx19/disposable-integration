@@ -15,7 +15,7 @@ export default function LandingPage() {
 
   return (
     <main
-      className="flex min-h-[83vh] items-center justify-center
+      className="flex min-h-[calc(100vh-25vh)] overflow-hidden items-center justify-center
       md:bg-[linear-gradient(45deg,#007b84_0%,#d35c2f_50%,#b23a68_100%)] bg-[linear-gradient(45deg,#007b84_0%,#d35c2f_50%,#b23a68_100%)]
       rounded-3xl md:m-10 m-5 p-6"
     >
@@ -33,7 +33,7 @@ export default function LandingPage() {
           <Button
           onClick={() => router.push('/chat')}
             variant="elevated"
-            className="w-full sm:w-1/2 bg-black text-white border-gray-800 rounded-full"
+            className="w-full sm:w-1/2 bg-black text-white border-gray-800 md:rounded-full"
           >
             Create Room
           </Button>
