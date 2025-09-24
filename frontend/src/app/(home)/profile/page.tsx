@@ -1,23 +1,31 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import EmojiAvatar from "@/components/ui/EmojiAvatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import AuthLoader from "@/modules/auth/ui/AuthLoader";
 
 const ProfilePage = () => {
+  const router = useRouter();
   const {
     authUser,
     checkAuth,
     isCheckingAuth,
-    logout,
+    logout: originalLogout,
   } = useAuthStore();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  const logout = () => {
+    originalLogout(); 
+    router.push("/");
+  };
 
   if (isCheckingAuth) {
     return (
@@ -36,11 +44,7 @@ const ProfilePage = () => {
   }
 
   if (!authUser) {
-    return (
-      <p className="text-center mt-10 text-gray-500">
-        You need to log in to view your profile.
-      </p>
-    );
+    return <AuthLoader />;
   }
 
   return (
