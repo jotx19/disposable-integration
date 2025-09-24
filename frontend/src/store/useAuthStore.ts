@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import { io, Socket } from "socket.io-client";
-import {toast} from "sonner";
+import { toast } from "sonner";
 
 const BASE_URL = "http://localhost:5001";
 
@@ -11,6 +11,15 @@ export interface AuthUser {
   name: string;
   email: string;
   profilepic?: string;
+}
+
+// Custom type for API errors
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
 }
 
 interface AuthState {
@@ -48,7 +57,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const res = await axiosInstance.get<AuthUser>("/auth/check");
       set({ authUser: res.data });
       get().connectSocket();
-    } catch (error) {
+    } catch {
       set({ authUser: null });
     } finally {
       set({ isCheckingAuth: false });
@@ -62,8 +71,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ authUser: res.data });
       toast.success("Account created successfully");
       get().connectSocket();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Signup failed");
+    } catch (error: unknown) {
+      const err = error as ApiError;
+      toast.error(err.response?.data?.message || "Signup failed");
     } finally {
       set({ isSigningUp: false });
     }
@@ -77,8 +87,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       toast.success("Logged in successfully");
       get().connectSocket();
       return res.data;
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Login failed");
+    } catch (error: unknown) {
+      const err = error as ApiError;
+      toast.error(err.response?.data?.message || "Login failed");
       return null;
     } finally {
       set({ isLoggingIn: false });
@@ -107,7 +118,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             });
         }
       }, 1000);
-    } catch (error) {
+    } catch {
       toast.error("Error with Google login flow");
     } finally {
       set({ isLoggingInWithGoogle: false });
@@ -120,8 +131,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ authUser: null });
       toast.success("Logged out successfully");
       get().disconnectSocket();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Logout failed");
+    } catch (error: unknown) {
+      const err = error as ApiError;
+      toast.error(err.response?.data?.message || "Logout failed");
     }
   },
 
@@ -155,8 +167,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const res = await axiosInstance.put<AuthUser>("/auth/update-profile", data);
       set({ authUser: res.data });
       toast.success("Profile updated successfully");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update profile");
+    } catch (error: unknown) {
+      const err = error as ApiError;
+      toast.error(err.response?.data?.message || "Failed to update profile");
     } finally {
       set({ isUpdatingProfile: false });
     }

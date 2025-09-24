@@ -27,7 +27,7 @@ export default function SignInPage() {
 
   useEffect(() => {
     if (authUser) router.push("/");
-  }, [authUser]);
+  }, [authUser, router]);
 
   const handleSignin = async (e: React.FormEvent) => {
     e.preventDefault();

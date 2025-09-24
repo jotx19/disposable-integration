@@ -43,10 +43,7 @@ export default function CreateRoomPage() {
     }
   }, [isCheckingAuth, authUser, router]);
 
-  if (isCheckingAuth || (!authUser && !isCheckingAuth)) {
-    return <SharedLogo />;
-  }
-
+  
   const handleCopy = async () => {
     if (inviteLink) {
       await navigator.clipboard.writeText(inviteLink);
@@ -55,6 +52,9 @@ export default function CreateRoomPage() {
       setTimeout(() => setCopied(false), 2000);
     }
   };
+  if (isCheckingAuth || (!authUser && !isCheckingAuth)) {
+    return <SharedLogo />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center dark:bg-[#0A0A0A] p-6">

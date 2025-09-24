@@ -18,6 +18,7 @@ export interface Message {
   room: string;
   createdAt: string;
 }
+
 export interface Room {
   _id: string;
   name: string;
@@ -63,8 +64,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     try {
       const res = await axiosInstance.get("/room/users");
       set({ rooms: res.data });
-    } catch (error) {
-      console.error("Failed to fetch rooms", error);
+    } catch (err) {
+      console.error("Failed to fetch rooms:", err);
+      toast.error("Failed to fetch rooms");
     } finally {
       set({ isRoomLoading: false });
     }
@@ -75,7 +77,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     try {
       const res = await axiosInstance.get(`/message/${roomId}/messages`);
       set({ messages: res.data });
-    } catch (error) {
+    } catch (_err) {
       toast.error("Failed to fetch messages");
     } finally {
       set({ isMessagesLoading: false });
@@ -93,8 +95,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         `/message/${selectedRoom._id}/sendMessage`,
         messageData
       );
-    } catch (error) {
-      console.error("Failed to send message:", error);
+    } catch (_err) {
+      console.error("Failed to send message");
+      toast.error("Failed to send message");
     }
   },
 
@@ -156,7 +159,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         messages: messages.filter((m) => !toDelete.includes(m._id)),
         selectedMessages: [],
       });
-    } catch (error) {
+    } catch (_err) {
       toast.error("Failed to delete selected messages");
     }
   },
@@ -172,5 +175,4 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         : [...selectedMessages, id],
     });
   },
-  
 }));
