@@ -12,10 +12,6 @@ interface Props {
 const ChatLayout: React.FC<Props> = ({ children }) => {
   return (
     <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
     >
       <ChatSidebar>
         <SidebarInset>{children}</SidebarInset>

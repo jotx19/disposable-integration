@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "../globals.css";
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "@/components/ui/theme-provider";
 import Header from "@/modules/home/ui/navbar";
 
 
@@ -15,7 +15,7 @@ interface Props {
 
 const Layout = async ({ children }: Props) => {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+    <ThemeProvider >
       <div className="flex flex-col min-h-screen">{children}
         <Header/>
       </div>
