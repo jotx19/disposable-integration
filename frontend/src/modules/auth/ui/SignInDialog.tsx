@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/useAuthStore";
 
-export default function signInPage() {
+export default function SignInPage() {
   const router = useRouter();
   const login = useAuthStore((state) => state.login);
   const isLoggingIn = useAuthStore((state) => state.isLoggingIn);
