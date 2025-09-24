@@ -28,6 +28,10 @@ const ChatLandingPage = () => {
     }
   }, [isCheckingAuth, authUser, router]);
 
+  if (isCheckingAuth || (!authUser && !isCheckingAuth)) {
+    return <SharedLogo />;
+  }
+  
   useEffect(() => {
     if (authUser) {
       getUserRooms().catch(() => {
@@ -36,9 +40,6 @@ const ChatLandingPage = () => {
     }
   }, [authUser, getUserRooms]);
 
-  if (isCheckingAuth || (!authUser && !isCheckingAuth)) {
-    return <SharedLogo />;
-  }
 
   return (
     <div className="flex items-center justify-center min-h-screen dark:bg-[#0A0A0A] p-4">

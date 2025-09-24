@@ -18,6 +18,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import SharedLogo from "@/modules/auth/ui/AuthLoader";
+import Link from "next/link";
 
 export default function CreateRoomPage() {
   const [roomName, setRoomName] = useState("");
@@ -126,9 +127,9 @@ export default function CreateRoomPage() {
                 asChild
                 className="w-full md:flex-1 h-12 text-lg rounded-xl"
               >
-                <a href="/chat">
+                <Link href="/chat">
                   Visit Room <ExternalLink className="h-5 w-5 ml-2" />
-                </a>
+                </Link>
               </Button>
             </div>
           </div>

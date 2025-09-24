@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Trash2 } from "lucide-react";
 import EmojiAvatar from "@/components/ui/EmojiAvatar";
+import Image from "next/image";
 
 interface Message {
   _id: string;
@@ -64,7 +65,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         <div className="flex flex-col items-center w-10 mr-2">
           <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gray-200">
             {senderPic ? (
-              <img
+              <Image
                 src={senderPic}
                 alt={senderName || "User"}
                 className="w-full h-full object-cover"

@@ -61,7 +61,7 @@ export default function signInPage() {
         </div>
 
         <p className="text-base max-w-xs text-foreground/80 -mt-2.5">
-          Sign in to your account to continue. Don't have an account?{" "}
+          Sign in to your account to continue. Dont have an account?{" "}
           <Link className="text-foreground underline" href="/sign-up">
             SignUp
           </Link>
@@ -86,7 +86,7 @@ export default function signInPage() {
           </Label>
           <div className="relative">
             <Input
-              className="py-4 pr-10" // extra padding for the eye icon
+              className="py-4 pr-10"
               id="password"
               type={showPassword ? "text" : "password"}
               name="password"

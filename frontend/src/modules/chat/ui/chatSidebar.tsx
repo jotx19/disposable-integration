@@ -4,7 +4,6 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
   PanelLeftIcon,
-  MessageCircleIcon,
   BadgeCheckIcon,
   ArrowUpRightIcon,
 } from "lucide-react";
