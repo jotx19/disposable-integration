@@ -8,8 +8,11 @@ import { toast } from "sonner";
 import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/modules/home/ui/navbar";
+import { useRouter } from "next/navigation";
+import SharedLogo from "@/modules/auth/ui/AuthLoader";
 
 const ChatLandingPage = () => {
+  const router = useRouter();
   const { userRooms, getUserRooms } = useRoomStore();
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
 
@@ -20,12 +23,22 @@ const ChatLandingPage = () => {
   }, [checkAuth]);
 
   useEffect(() => {
+    if (!isCheckingAuth && !authUser) {
+      router.replace("/sign-in");
+    }
+  }, [isCheckingAuth, authUser, router]);
+
+  useEffect(() => {
     if (authUser) {
       getUserRooms().catch(() => {
         toast.error("Failed to load rooms.");
       });
     }
   }, [authUser, getUserRooms]);
+
+  if (isCheckingAuth || (!authUser && !isCheckingAuth)) {
+    return <SharedLogo />;
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen dark:bg-[#0A0A0A] p-4">
@@ -110,10 +123,15 @@ const ChatLandingPage = () => {
                   key={idx}
                   className="flex justify-between items-center bg-gray-800 rounded-xl p-4"
                 >
-                  <div className="h-4 w-1/2 bg-gray-600 rounded animate-pulse"></div>
+                  <div className="h-4 w-1/2 bg-gray-600 rounded text-center animate-pulse"></div>
                   <div className="h-4 w-6 bg-gray-600 rounded animate-pulse"></div>
                 </li>
               ))}
+              <div>
+                <p className="text-center text-gray-500">
+                  Please log in to see your rooms.
+                </p>
+              </div>
             </ul>
           )}
         </div>

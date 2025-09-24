@@ -15,7 +15,7 @@ interface Props {
 
 const Layout = async ({ children }: Props) => {
   return (
-    <ThemeProvider attribute="class"  enableSystem>
+    <ThemeProvider attribute="class" enableSystem>
       <div className="flex flex-col min-h-screen">{children}
         <Header/>
       </div>

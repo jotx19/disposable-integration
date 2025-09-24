@@ -8,18 +8,27 @@ import { ChatMessage } from "@/modules/chat/ui/chatView";
 import ChatMessageInput from "@/modules/chat/ui/messageInupt";
 import MessageSkeleton from "@/modules/chat/ui/messageSkeleton";
 import EmptyRoom from "@/modules/chat/ui/chatLoader";
+import { useRouter } from "next/navigation";
+import SharedLogo from "@/modules/auth/ui/AuthLoader";
 
 export default function RoomPage() {
   const { selectedRoom, messages, getMessages, isMessagesLoading } =
     useChatStore();
-  const { authUser } = useAuthStore();
+  const router = useRouter();
   const messageEndRef = useRef<HTMLDivElement>(null);
+  const { authUser, isCheckingAuth } = useAuthStore();
 
   useEffect(() => {
     if (selectedRoom) {
       getMessages(selectedRoom._id);
     }
   }, [selectedRoom, getMessages]);
+
+  useEffect(() => {
+    if (!isCheckingAuth && !authUser) {
+      router.replace("/sign-in");
+    }
+  }, [isCheckingAuth, authUser, router]);
 
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -29,8 +38,8 @@ export default function RoomPage() {
     return <EmptyRoom />;
   }
 
-  if (!authUser) {
-    return <div className="p-4 text-center">Please login to view messages</div>;
+  if (isCheckingAuth || (!authUser && !isCheckingAuth)) {
+    return <SharedLogo />;
   }
 
   return (

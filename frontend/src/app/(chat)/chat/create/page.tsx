@@ -14,6 +14,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import SharedLogo from "@/modules/auth/ui/AuthLoader";
 
 export default function CreateRoomPage() {
   const [roomName, setRoomName] = useState("");
@@ -21,6 +25,8 @@ export default function CreateRoomPage() {
   const [copied, setCopied] = useState(false);
 
   const { createRoom, isCreatingRoom } = useRoomStore();
+  const router = useRouter();
+  const { authUser, isCheckingAuth } = useAuthStore();
 
   const handleCreate = async () => {
     if (!roomName.trim()) return;
@@ -29,6 +35,16 @@ export default function CreateRoomPage() {
       setInviteLink(room.inviteLink || null);
     }
   };
+
+  useEffect(() => {
+    if (!isCheckingAuth && !authUser) {
+      router.replace("/sign-in");
+    }
+  }, [isCheckingAuth, authUser, router]);
+
+  if (isCheckingAuth || (!authUser && !isCheckingAuth)) {
+    return <SharedLogo />;
+  }
 
   const handleCopy = async () => {
     if (inviteLink) {
