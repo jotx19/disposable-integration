@@ -56,8 +56,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signup: async (data) => {
     set({ isSigningUp: true });
     try {
-      const res = await axiosInstance.post<AuthUser>("/auth/signup", data);
-      set({ authUser: res.data });
+      const res = await axiosInstance.post<{ token: string; _id: string; name: string; email: string; profilepic?: string }>("/auth/signup", data);
+      localStorage.setItem("jwt", res.data.token);
+      set({ authUser: { _id: res.data._id, name: res.data.name, email: res.data.email, profilepic: res.data.profilepic } });
+      
       toast.success("Account created successfully");
       get().connectSocket();
     } catch {
@@ -70,10 +72,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (data) => {
     set({ isLoggingIn: true });
     try {
-      const res = await axiosInstance.post<AuthUser>("/auth/login", data);
-      set({ authUser: res.data });
+      const res = await axiosInstance.post<{ token: string; _id: string; name: string; email: string; profilepic?: string }>("/auth/login", data);
+      localStorage.setItem("jwt", res.data.token);
+      set({ authUser: { _id: res.data._id, name: res.data.name, email: res.data.email, profilepic: res.data.profilepic } });
+  
       toast.success("Logged in successfully");
       get().connectSocket();
+  
       return res.data;
     } catch {
       toast.error("Login failed");
