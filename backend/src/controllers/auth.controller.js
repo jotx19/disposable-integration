@@ -22,10 +22,12 @@ export const signup = async (req, res)=>{
         })
 
         if (newUser){
-            generateToken(newUser._id,res)
             await newUser.save();
 
+            const token = generateToken(newUser._id)
+
             res.status(201).json({
+             token,
              _id: newUser._id,
              name: newUser.name,
              email: newUser.email,
@@ -55,9 +57,10 @@ export const login = async (req, res)=>{
             return res.status(400).json({message: "Wrong credentials"});
         }
 
-        generateToken(user._id,res)
+        const token = generateToken(user._id)
 
         res.status(200).json({
+            token,
             _id: user._id,
             name: user.name,
             email: user.email,
@@ -73,7 +76,7 @@ export const login = async (req, res)=>{
 export const logout = (req, res)=>{
     try {
         res.cookie("myToken","", {
-            maxAge:"0",
+            maxAge: 0,
             httpOnly: true,
             secure: true,
             sameSite: "None"
