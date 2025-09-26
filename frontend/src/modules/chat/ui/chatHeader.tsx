@@ -37,15 +37,15 @@ export const ChatHeader: React.FC = () => {
       <div className="flex items-center justify-between w-full max-w-6xl">
         <Button
           variant="outline"
-          className="flex items-center gap-2 rounded-full backdrop-blur-sm mix mx-11 h-9 px-4"
+          className="flex items-center gap-2 rounded-full backdrop-blur-xl mix mx-11 h-9 px-4"
           onClick={() => setIsModalOpen(true)}
         >
           <UserIcon className="h-4 w-4" size={16} />
-          <span className="text-md text-gray-400">{onlineCount}</span>
+          <span className="text-md text-gray-300">{onlineCount}</span>
         </Button>
 
         <div className="flex items-center gap-4">
-          <Badge variant="secondary" className="text-lg px-4 py-2">
+          <Badge variant="secondary" className="md:text-lg px-4 py-2">
             {selectedRoom.name}
           </Badge>
           <Timer room={selectedRoom} />

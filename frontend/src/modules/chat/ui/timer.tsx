@@ -51,7 +51,7 @@ export const Timer: React.FC<TimerProps> = ({ room }) => {
   const seconds = time % 60;
 
   return (
-    <span className="md:text-sm text-[11px] tracking-tighter text-gray-400 font-mono">
+    <span className="md:text-sm p-1 text-[12px] backdrop-blur-xl rounded tracking-tighter text-gray-300 font-mono">
       {hours}h {minutes}m {seconds}s
     </span>
   );
