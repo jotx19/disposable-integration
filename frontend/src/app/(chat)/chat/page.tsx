@@ -40,7 +40,7 @@ const ChatLandingPage = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen dark:bg-[#0A0A0A] p-4">
+    <div className="flex items-center justify-center min-h-[calc(100vh-25vh)] md:min-h-screen dark:bg-[#0A0A0A] p-4">
       <div className="w-full max-w-4xl h-[74vh] bg-[#FAFAFA] dark:bg-[#171717] rounded-xl shadow-lg p-6 flex flex-col">
         <div className="flex flex-col mb-4">
           {isCheckingAuth ? (
@@ -99,7 +99,7 @@ const ChatLandingPage = () => {
               ))}
             </ul>
           ) : authUser ? (
-            <ul className="space-y-3 md:w-2/3 mx-auto">
+            <ul className="space-y-3 pt-9 md:w-2/3 mx-auto">
               {userRooms.map((room) => (
                 <Link
                   key={room._id}
@@ -123,7 +123,7 @@ const ChatLandingPage = () => {
               ))}
             </ul>
           ) : (
-            <ul className="space-y-3 w-2/3 mx-auto">
+            <ul className="space-y-3 pt-9 w-3/3 mx-auto">
               {Array.from({ length: 5 }).map((_, idx) => (
                 <li
                   key={idx}
@@ -134,7 +134,7 @@ const ChatLandingPage = () => {
                 </li>
               ))}
               <div>
-                <p className="text-center text-gray-500">
+                <p className="text-center text-xs text-gray-500">
                   Please log in to see your rooms.
                 </p>
               </div>
