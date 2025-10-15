@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import { toast } from "sonner";
-import { useRouter } from "next/router";
 
 // Type definitions
 interface User {
@@ -25,6 +24,7 @@ interface RoomExpiration {
   timestamp: number;
 }
 
+// Temporary types for API response
 interface RawMember {
   _id: string;
   name: string;
@@ -57,8 +57,6 @@ interface RoomStore {
   getRoomExpirationTime: (roomCodeOrId: string) => Promise<number | undefined>;
   updateExpirationTime: (roomCodeOrId: string) => void;
 }
-const router = useRouter();
-
 
 export const useRoomStore = create<RoomStore>((set, get) => ({
   rooms: [],
@@ -118,7 +116,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
 
       if (res.data?.message) 
       toast.success(res.data.message);
-      router.push('/chat');
+    
       set({ userRooms: [...get().userRooms, room] });
 
       return room;
