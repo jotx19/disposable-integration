@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useRoomStore } from "@/store/useRoomStore";
 import { toast } from "sonner";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
@@ -9,14 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
-interface JoinPageProps {
-  params: { roomCode: string };
-}
-
-const JoinRoomPage: React.FC<JoinPageProps> = ({ params }) => {
+const JoinRoomPage = () => {
   const router = useRouter();
+  const params = useParams();
   const { joinRoom } = useRoomStore();
-  const { roomCode } = params;
+
+  // ✅ Safely get roomCode from URL
+  const roomCode = params?.roomCode as string;
 
   const [redirecting, setRedirecting] = useState(false);
   const [countdown, setCountdown] = useState(6);
