@@ -19,14 +19,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Footer } from "@/modules/home/ui/footer";
-import { useChatStore, Room } from "@/store/useChatStore"; // ✅ Import Room type from store
+import { useChatStore, Room , User } from "@/store/useChatStore";
 
 const MemoizedFooter = React.memo(Footer);
 
 interface ChatSidebarProps {
   children?: React.ReactNode;
-  authUser: any;
-  userRooms: Room[]; // ✅ Use the same Room type as store
+  authUser: User | null;
+  userRooms: Room[]; 
   loading: boolean;
 }
 
@@ -40,14 +40,13 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   const { setSelectedRoom } = useChatStore();
   const [open, setOpen] = React.useState(true);
 
-  // ✅ Ensure the found room includes required members[] field
   const handleRoomClick = React.useCallback(
     (roomId: string) => {
       const room = userRooms.find((r) => r._id === roomId);
       if (room) {
         const safeRoom: Room = {
           ...room,
-          members: room.members || [], // ✅ Fallback if missing
+          members: room.members || [],
         };
         setSelectedRoom(safeRoom);
       }
