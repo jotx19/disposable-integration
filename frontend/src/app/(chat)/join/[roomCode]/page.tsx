@@ -35,7 +35,7 @@ const JoinRoomPage = ({ params }: JoinPageProps) => {
           setCountdown((prev) => {
             if (prev === 1) {
               clearInterval(timer);
-              router.push(`/chat/${room.roomCode}`);
+              router.push(`/chat`);
             }
             return prev - 1;
           });
