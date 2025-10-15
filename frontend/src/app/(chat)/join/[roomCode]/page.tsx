@@ -10,13 +10,13 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 interface JoinPageProps {
-  params: Promise<{ roomCode: string }>;
+  params: { roomCode: string };
 }
 
-const JoinRoomPage = async ({ params }: JoinPageProps) => {
+const JoinRoomPage: React.FC<JoinPageProps> = ({ params }) => {
   const router = useRouter();
   const { joinRoom } = useRoomStore();
-  const { roomCode } = await params;
+  const { roomCode } = params;
 
   const [redirecting, setRedirecting] = useState(false);
   const [countdown, setCountdown] = useState(6);
@@ -55,7 +55,7 @@ const JoinRoomPage = async ({ params }: JoinPageProps) => {
           variant="ghost"
           size="icon"
           className="absolute top-3 left-3 rounded-full"
-          onClick={() => router.back()}
+          onClick={() => router.push("https://disposable.vercel.app")}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -67,8 +67,8 @@ const JoinRoomPage = async ({ params }: JoinPageProps) => {
           loop
         />
 
-        <Badge className="text-lg text-black mb-4 rounded-xl">
-          Joining you in the room
+        <Badge className="text-lg text-black mb-4">
+          Joining you in the room...
         </Badge>
 
         {redirecting && (
