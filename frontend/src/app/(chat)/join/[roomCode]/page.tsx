@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRoomStore } from "@/store/useRoomStore";
 import { toast } from "sonner";
@@ -13,10 +13,10 @@ interface JoinPageProps {
   params: Promise<{ roomCode: string }>;
 }
 
-const JoinRoomPage = ({ params }: JoinPageProps) => {
+const JoinRoomPage = async ({ params }: JoinPageProps) => {
   const router = useRouter();
   const { joinRoom } = useRoomStore();
-  const { roomCode } = use(params);
+  const { roomCode } = await params;
 
   const [redirecting, setRedirecting] = useState(false);
   const [countdown, setCountdown] = useState(6);
@@ -29,7 +29,6 @@ const JoinRoomPage = ({ params }: JoinPageProps) => {
 
       if (room) {
         toast.success(`Joined room "${room.name}" successfully!`);
-        router.push(`/chat`);
         setRedirecting(true);
 
         const timer = setInterval(() => {
@@ -51,7 +50,7 @@ const JoinRoomPage = ({ params }: JoinPageProps) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center dark:bg-[#0A0A0A]">
-      <div className="relative flex flex-col md:max-w-xl max-w-lg items-center gap-2 text-center bg-gray-200 dark:bg-[#171717] rounded-2xl p-6 ">
+      <div className="relative flex flex-col md:max-w-xl max-w-lg items-center gap-2 text-center bg-gray-200 dark:bg-[#171717] rounded-2xl p-6">
         <Button
           variant="ghost"
           size="icon"
@@ -67,9 +66,11 @@ const JoinRoomPage = ({ params }: JoinPageProps) => {
           autoplay
           loop
         />
+
         <Badge className="text-lg text-black mb-4 rounded-xl">
           Joining you in the room
         </Badge>
+
         {redirecting && (
           <p className="text-sm text-gray-500 font-mono tracking-tighter">
             Redirecting you in {countdown}s
