@@ -13,34 +13,33 @@ const JoinRoomPage = () => {
   const router = useRouter();
   const params = useParams();
   const { joinRoom } = useRoomStore();
-
-  // ✅ Safely get roomCode from URL
   const roomCode = params?.roomCode as string;
 
   const [redirecting, setRedirecting] = useState(false);
-  const [countdown, setCountdown] = useState(6);
+  const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
-    const join = async () => {
-      if (!roomCode) return;
+    if (!roomCode) return;
 
+    const join = async () => {
       const room = await joinRoom(roomCode);
 
       if (room) {
         toast.success(`Joined room "${room.name}" successfully!`);
         setRedirecting(true);
 
-        const timer = setInterval(() => {
-          setCountdown((prev) => {
-            if (prev === 1) {
-              clearInterval(timer);
-              router.push(`/chat`);
-            }
-            return prev - 1;
-          });
+        // Countdown logic
+        let counter = 5;
+        const countdownInterval = setInterval(() => {
+          counter -= 1;
+          setCountdown(counter);
+          if (counter <= 0) {
+            clearInterval(countdownInterval);
+            router.push("/chat"); // ✅ Redirect here
+          }
         }, 1000);
       } else {
-        setRedirecting(false);
+        toast.error("Failed to join the room");
       }
     };
 
