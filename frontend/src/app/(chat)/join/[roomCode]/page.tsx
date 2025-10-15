@@ -29,6 +29,7 @@ const JoinRoomPage = ({ params }: JoinPageProps) => {
 
       if (room) {
         toast.success(`Joined room "${room.name}" successfully!`);
+        router.push(`/chat`);
         setRedirecting(true);
 
         const timer = setInterval(() => {
