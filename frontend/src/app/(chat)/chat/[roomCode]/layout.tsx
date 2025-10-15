@@ -26,8 +26,7 @@ const ChatLayout: React.FC<Props> = ({ children }) => {
   }, [getUserRooms, checkAuth]);
 
   return (
-    <ThemeProvider>
-      {/* ✅ Pass pre-fetched data down to Sidebar */}
+  <ThemeProvider>
       <ChatSidebar
         authUser={authUser}
         userRooms={userRooms}

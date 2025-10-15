@@ -28,7 +28,7 @@ export const ChatHeader: React.FC = () => {
 
   if (!selectedRoom) return null;
 
-  const onlineCount = selectedRoom.members.filter(m =>
+  const onlineCount = selectedRoom.members?.filter(m =>
     onlineUsers.includes(m._id)
   ).length;
 
@@ -66,7 +66,7 @@ export const ChatHeader: React.FC = () => {
             </div>
 
             <ul className="space-y-3 mt-4 w-full">
-              {selectedRoom.members.map(member => (
+              {selectedRoom.members?.map(member => (
                 <li
                   key={member._id}
                   className="flex justify-between items-center p-2 bg-gray-700 rounded-lg"

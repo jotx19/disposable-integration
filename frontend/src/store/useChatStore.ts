@@ -22,7 +22,7 @@ export interface Message {
 export interface Room {
   _id: string;
   name: string;
-  members: User[];
+  members?: User[];
   roomCode?: string;
   createdBy?: User | null;
   inviteLink?: string;

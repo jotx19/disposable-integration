@@ -2,12 +2,6 @@
 import { useTheme } from "next-themes"
 import { Sun, Moon } from "lucide-react"
 import { useEffect, useState } from "react"
-import { Poppins } from "next/font/google"
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["700"],
-})
 
 export const Footer = () => {
   const { theme, setTheme } = useTheme()
