@@ -19,34 +19,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Footer } from "@/modules/home/ui/footer";
-import { useChatStore, Room, User } from "@/store/useChatStore";
+import { useChatStore, Room , User } from "@/store/useChatStore";
 
 const MemoizedFooter = React.memo(Footer);
-
-// ✅ Memoized Room item for performance
-const RoomItem = React.memo(
-  ({ room, onClick }: { room: Room; onClick: () => void }) => (
-    <SidebarMenuItem>
-      <SidebarMenuButton
-        className="md:w-[calc(80vw-60vw)] w-[calc(80vh-45vh)] h-10 p-6 mx-auto"
-        onClick={onClick}
-      >
-        <div className="flex items-center px-2 w-full mx-auto text-xl gap-2">
-          <span className="font-semibold truncate whitespace-nowrap overflow-hidden max-w-[80%]">
-            {room.name}
-          </span>
-          <ArrowUpRightIcon className="size-6 !w-4 !h-4 shrink-0" />
-        </div>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
-  )
-);
-RoomItem.displayName = "RoomItem";
 
 interface ChatSidebarProps {
   children?: React.ReactNode;
   authUser: User | null;
-  userRooms: Room[];
+  userRooms: Room[]; 
   loading: boolean;
 }
 
@@ -59,17 +39,6 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   const router = useRouter();
   const { setSelectedRoom } = useChatStore();
   const [open, setOpen] = React.useState(true);
-  const [renderRooms, setRenderRooms] = React.useState(false);
-
-  // ✅ Delay rendering rooms for smoother animation
-  React.useEffect(() => {
-    if (open) {
-      const timer = setTimeout(() => setRenderRooms(true), 150);
-      return () => clearTimeout(timer);
-    } else {
-      setRenderRooms(false);
-    }
-  }, [open]);
 
   const handleRoomClick = React.useCallback(
     (roomId: string) => {
@@ -95,7 +64,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
       <Sidebar
         collapsible="offcanvas"
-        className="z-40 transform-gpu will-change-transform transition-transform duration-200"
+        className="z-40 transform-gpu will-change-transform"
       >
         <SidebarHeader>
           {authUser && (
@@ -113,22 +82,28 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
         <SidebarContent>
           <SidebarMenu>
-            {loading ? (
-              Array.from({ length: 5 }).map((_, idx) => (
-                <Skeleton
-                  key={idx}
-                  className="h-10 p-6 md:w-[calc(80vw-60vw)] w-[calc(80vh-53vh)] mx-auto rounded-md"
-                />
-              ))
-            ) : renderRooms ? (
-              userRooms.map((room) => (
-                <RoomItem
-                  key={room._id}
-                  room={room}
-                  onClick={() => handleRoomClick(room._id)}
-                />
-              ))
-            ) : null}
+            {loading
+              ? Array.from({ length: 5 }).map((_, idx) => (
+                  <Skeleton
+                    key={idx}
+                    className="h-10 p-6 md:w-[calc(80vw-60vw)] w-[calc(80vh-53vh)] mx-auto rounded-md"
+                  />
+                ))
+              : userRooms.map((room) => (
+                  <SidebarMenuItem key={room._id}>
+                    <SidebarMenuButton
+                      className="md:w-[calc(80vw-60vw)] w-[calc(80vh-45vh)] h-10 p-6 mx-auto"
+                      onClick={() => handleRoomClick(room._id)}
+                    >
+                      <div className="flex items-center px-2 w-full mx-auto text-xl gap-2">
+                        <span className="font-semibold truncate whitespace-nowrap overflow-hidden max-w-[80%]">
+                          {room.name}
+                        </span>
+                        <ArrowUpRightIcon className="size-6 !w-4 !h-4 shrink-0" />
+                      </div>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
           </SidebarMenu>
         </SidebarContent>
 
