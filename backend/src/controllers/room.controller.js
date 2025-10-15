@@ -61,9 +61,9 @@ export const joinRoom = async (req, res) => {
     room.members.push(req.user._id);
     await room.save();
 
-    res.status(200).json({ message: "Successfully joined the room", roomId: room._id });
+    res.status(200).json({ message: "Successfully joined the room", roomId: room._id, room });
   } catch (error) {
-    console.error("Error joining room:", error);
+    // console.error("Error joining room:", error);
     res.status(500).json({ message: "Unable to join room" });
   }
 };
