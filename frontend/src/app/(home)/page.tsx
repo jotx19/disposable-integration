@@ -14,17 +14,18 @@ export default function LandingPage() {
   };
 
   return (
+    <div className="min-h-screen flex items-center justify-center bg-[#F4F4F0] dark:bg-background">
     <main
-      className="flex min-h-[calc(100vh-25vh)] overflow-hidden items-center justify-center
+      className="flex w-full min-h-[calc(100vh-25vh)] -mt-20 overflow-hidden items-center justify-center
       md:bg-[linear-gradient(45deg,#007b84_0%,#d35c2f_50%,#b23a68_100%)] bg-[linear-gradient(45deg,#007b84_0%,#d35c2f_50%,#b23a68_100%)]
-      rounded-3xl md:m-10 m-5 p-6"
+      rounded-3xl md:m-none m-5 p-6"
     >
-      <div className="max-w-3xl w-full text-center space-y-6">
+      <div className="max-w-7xl w-full text-center space-y-6">
         <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white">
           Disposable Chatrooms
         </h1>
 
-        <p className="md:text-lg text-sm font-mono text-gray-200 tracking-tight">
+        <p className="md:text-lg text-sm md:w-1/2 mx-auto font-mono text-gray-200 tracking-tight">
           Create a private chatroom instantly. Share the link, no
           hassle. Conversations disappear when you are done.
         </p>
@@ -36,6 +37,13 @@ export default function LandingPage() {
             className="w-full sm:w-1/2 bg-black text-white border-gray-800 md:rounded-full"
           >
             Create Room
+          </Button>
+          <Button
+          onClick={() => router.push('/playground')}
+            variant="elevated"
+            className="w-full sm:w-1/2 bg-black text-white border-gray-800 md:rounded-full"
+          >
+            Playground
           </Button>
 
           <div className="flex w-full sm:w-1/2">
@@ -57,5 +65,7 @@ export default function LandingPage() {
         </div>
       </div>
     </main>
+    </div>
+
   );
 }

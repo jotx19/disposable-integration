@@ -13,8 +13,8 @@ export default function Menu() {
   const { authUser, logout } = useAuthStore();
 
   return (
-    <div className="fixed z-[9999] bottom-4 left-0 right-0">
-      <div className=" backdrop-blur-lg overflow-hidden border border-border p-2 rounded-full shadow-md w-fit flex mx-auto gap-1.5">
+    <div className="fixed bg-transparent z-[9999] bottom-4 left-0 right-0">
+      <div className="backdrop-blur-lg overflow-hidden border border-border p-2 rounded-full shadow-md w-fit flex mx-auto gap-1.5">
         <Button
           className={cn(
             "rounded-2xl group transition",
