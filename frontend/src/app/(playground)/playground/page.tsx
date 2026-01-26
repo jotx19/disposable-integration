@@ -1,12 +1,13 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Lock } from "lucide-react";
 import DiscordIcon from "@/modules/playground/ui/discordIcon";
+import { Card } from "@/components/ui/card";
 
 interface DiscordGuild {
   id: string;
@@ -38,25 +39,24 @@ export default function PlaygroundPage() {
   if (!session) {
     return (
       <div className="flex items-center justify-center min-h-screen p-4 dark:bg-[#0A0A0A]">
-        <div className="w-full max-w-4xl h-[74vh] bg-[#FAFAFA] dark:bg-[#171717] rounded-xl shadow-lg p-6 flex flex-col">
-          <div className="flex flex-col mb-4">
-            <div className="h-6 w-1/3 bg-gray-300 dark:bg-gray-700 rounded mx-auto animate-pulse mb-5"></div>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            <ul className="space-y-3 pt-6 md:w-2/3 mx-auto">
-              {Array.from({ length: 5 }).map((_, idx) => (
-                <li
-                  key={idx}
-                  className="flex justify-between items-center bg-gray-200 hover:bg-gray-100 
-                     dark:bg-gray-800 rounded-xl p-4 
-                     dark:hover:bg-gray-700 hover:text-white transition cursor-pointer"
-                >
-                  <div className="h-4 w-1/2 bg-gray-600 rounded animate-pulse"></div>
-                  <div className="h-4 w-6 bg-gray-600 rounded animate-pulse"></div>
-                </li>
-              ))}
-            </ul>
-          </div>
+        <div>
+          <Card className="w-full max-w-5xl bg-[#FAFAFA] dark:bg-[#171717] rounded-xl shadow-lg p-10 flex flex-col justify-center items-center">
+            <Lock className="h-8 w-7 mb-4" />
+            <h2 className="text-md font-semibold mb-2 text-center">
+              You must be signed in to send a PDF
+            </h2>
+            <button
+              onClick={() => signIn("discord")}
+              >
+              <div className="inline-flex items-center border bg-[#5865F2] hover:scale-105 rounded-full px-3 py-2 gap-2">
+                <DiscordIcon className="h-5 w-5" />
+                <span className="text-sm font-medium">
+                  Sign in with Discord
+                </span>
+              </div>
+              
+            </button>
+          </Card>
         </div>
       </div>
     );
