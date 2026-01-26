@@ -37,7 +37,7 @@ export default function SignInPage() {
     }
 
     const user = await login({ email, password });
-    if (user) router.push("/");
+    if (user) router.push("/chat");
     setEmail("");
     setPassword("");
   };
