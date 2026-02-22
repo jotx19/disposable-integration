@@ -1,90 +1,146 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
-import { UserIcon } from "lucide-react";
-import { useAuthStore } from "@/store/useAuthStore";
+import { Info, Copy, Link2 } from "lucide-react";
+import { toast } from "sonner";
+
 import { useChatStore } from "@/store/useChatStore";
 import { useRoomStore } from "@/store/useRoomStore";
-import { Button } from "@/components/ui/button";
+
 import { Badge } from "@/components/ui/badge";
 import { Timer } from "@/modules/chat/ui/timer";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import { RoomMembersButton } from "./roomMemberButton"; 
+
 export const ChatHeader: React.FC = () => {
   const { roomCode } = useParams<{ roomCode: string }>();
-  const { onlineUsers } = useAuthStore();
   const { selectedRoom, setSelectedRoom } = useChatStore();
   const { userRooms } = useRoomStore();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   useEffect(() => {
     if (!roomCode) return;
-    const room = userRooms.find(room => room._id === roomCode);
+    const room = userRooms.find((r) => r.roomCode === roomCode);
     if (!room) return;
-
     setSelectedRoom(room);
   }, [roomCode, userRooms, setSelectedRoom]);
 
-  if (!selectedRoom) return null;
+  const displayRoomCode = useMemo(() => {
+    if (!roomCode) return "";
+    return roomCode.length > 12 ? `${roomCode.slice(0, 12)}…` : roomCode;
+  }, [roomCode]);
 
-  const onlineCount = selectedRoom.members?.filter(m =>
-    onlineUsers.includes(m._id)
-  ).length;
+  const copyText = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`${label} copied`);
+    } catch {
+      toast.error("Copy failed");
+    }
+  };
+
+  const handleCopyInvite = () => {
+    const link = selectedRoom?.inviteLink;
+    if (!link) return toast.error("No invite link available");
+    void copyText(link, "Invite link");
+  };
+
+  const handleCopyName = () => {
+    if (!selectedRoom) return;
+    void copyText(selectedRoom.name, "Room name");
+  };
+
+  if (!selectedRoom) return null;
 
   return (
     <div className="flex justify-center p-2 bg-transparent">
       <div className="flex items-center justify-between w-full max-w-6xl">
-        <Button
-          variant="outline"
-          className="flex items-center gap-2 rounded-full backdrop-blur-xl mix mx-11 h-9 px-4"
-          onClick={() => setIsModalOpen(true)}
-        >
-          <UserIcon className="h-4 w-4" size={16} />
-          <span className="text-md text-gray-300">{onlineCount}</span>
-        </Button>
+        <RoomMembersButton
+          roomId={selectedRoom._id}
+          roomCode={selectedRoom.roomCode}
+          members={selectedRoom.members ?? []}
+          createdBy={selectedRoom.createdBy}
+        />
 
-        <div className="flex items-center gap-4">
-          <Badge variant="secondary" className="md:text-lg px-4 py-2">
-            {selectedRoom.name}
+        <div className="flex items-center gap-2">
+          <Badge
+            variant="secondary"
+            className="md:text-xs px-3 py-2 flex items-center gap-2"
+          >
+            INFO
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Show room information"
+                  className="p-1 rounded-full hover:bg-white/10 transition"
+                >
+                  <Info className="h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent
+                side="bottom"
+                align="center"
+                sideOffset={8}
+                collisionPadding={12}
+                className="p-0 w-[calc(100vw-25px)] mx-auto max-w-[20rem] sm:w-80 rounded-2xl"
+              >
+                <div className="px-3 py-2 border-b">
+                  <p className="text-sm font-semibold text-center">
+                    Room Information
+                  </p>
+                </div>
+
+                <div className="px-3 py-3 border-b">
+                  <p className="text-xs text-muted-foreground mb-2">Room Name</p>
+                  <div className="h-10 w-full rounded-full border px-3 flex items-center gap-2">
+                    <span className="flex-1 truncate text-sm text-center">
+                      {selectedRoom.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleCopyName}
+                      className="shrink-0 h-7 w-7 rounded-full hover:bg-muted transition flex items-center justify-center"
+                      aria-label="Copy room name"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="px-3 py-3">
+                  <p className="text-xs text-muted-foreground mb-2">Invite Link</p>
+
+                  <div className="h-10 w-full rounded-full border flex items-center overflow-hidden">
+                    <span className="flex-1 truncate text-sm text-center px-3">
+                      {displayRoomCode}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={handleCopyInvite}
+                      disabled={!selectedRoom.inviteLink}
+                      className="h-full px-4 border-l flex items-center justify-center bg-white text-black hover:opacity-90 transition disabled:opacity-40 disabled:cursor-not-allowed rounded-none"
+                      aria-label="Copy invite link"
+                    >
+                      <Link2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </Badge>
+
           <Timer room={selectedRoom} />
         </div>
       </div>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
-          <div className="p-6 dark:bg-[#242423] bg-[#F5F5F5] rounded-3xl w-full max-w-lg flex flex-col items-center">
-            <div className="flex w-full justify-between mb-4">
-              <h2 className="text-3xl font-bold text-center w-full">Room Members</h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-gray-500 p-1"
-              >
-                ✕
-              </button>
-            </div>
-
-            <ul className="space-y-3 mt-4 w-full">
-              {selectedRoom.members?.map(member => (
-                <li
-                  key={member._id}
-                  className="flex justify-between items-center p-2 bg-gray-700 rounded-lg"
-                >
-                  <span className="text-white">{member.name}</span>
-                  <span
-                    className={`text-sm font-bold ${
-                      onlineUsers.includes(member._id) ? "text-green-500" : "text-red-500"
-                    }`}
-                  >
-                    {onlineUsers.includes(member._id) ? "Online" : "Offline"}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

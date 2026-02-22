@@ -11,7 +11,7 @@ import {
 import { ChevronLeft, Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/useAuthStore";
 
@@ -26,15 +26,55 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-
   useEffect(() => {
     if (authUser) router.push("/");
   }, [authUser, router]);
+
+  const passwordStrength = useMemo(() => {
+    const hasMinLen = password.length >= 8;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+    const score = [hasMinLen, hasUpper, hasNumber, hasSpecial].filter(Boolean)
+      .length;
+
+    const percent = (score / 4) * 100;
+
+    const label =
+      score <= 1 ? "Weak" : score === 2 ? "Fair" : score === 3 ? "Good" : "Strong";
+
+    const barClass =
+      score <= 1
+        ? "bg-red-500"
+        : score === 2
+        ? "bg-yellow-500"
+        : score === 3
+        ? "bg-blue-500"
+        : "bg-green-500";
+
+    return {
+      hasMinLen,
+      hasUpper,
+      hasNumber,
+      hasSpecial,
+      score,
+      percent,
+      label,
+      barClass,
+      isValid: score >= 3,
+    };
+  }, [password]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !password) {
       toast.error("Please fill in all fields");
+      return;
+    }
+
+    if (!passwordStrength.isValid) {
+      toast.error("Use 8+ chars with uppercase, number & special character.");
       return;
     }
 
@@ -122,6 +162,22 @@ export default function SignUpPage() {
               )}
             </button>
           </div>
+
+          {password.length > 0 && (
+            <div className="mt-2 space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">Password strength</p>
+                <p className="text-xs font-semibold">{passwordStrength.label}</p>
+              </div>
+
+              <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-300 ${passwordStrength.barClass}`}
+                  style={{ width: `${passwordStrength.percent}%` }}
+                />
+              </div>
+            </div>
+          )}
 
           <div className="text-center">
             <Popover>

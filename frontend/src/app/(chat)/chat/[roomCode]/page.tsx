@@ -56,7 +56,6 @@ export default function RoomPage() {
           : messages.map((msg) => <ChatMessage key={msg._id} message={msg} />)}
         <div ref={messageEndRef} />
       </div>
-
       <div className="mt-auto">
         <ChatMessageInput />
       </div>

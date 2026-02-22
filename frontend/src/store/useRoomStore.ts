@@ -56,6 +56,7 @@ interface RoomStore {
   getUserRooms: () => Promise<void>;
   getRoomExpirationTime: (roomCodeOrId: string) => Promise<number | undefined>;
   updateExpirationTime: (roomCodeOrId: string) => void;
+  removeUserFromRoom: (roomCode: string, userId: string) => Promise<void>;
 }
 
 export const useRoomStore = create<RoomStore>((set, get) => ({
@@ -212,6 +213,34 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
           },
         },
       }));
+    }
+  },
+  removeUserFromRoom: async (roomCode, userId) => {
+    try {
+      const res = await axiosInstance.post("/room/removeUser", { roomCode, userId });
+  
+      if (res.data?.message) toast.success(res.data.message);
+      else toast.success("User removed");
+  
+      set((state) => ({
+        userRooms: state.userRooms.map((r) =>
+          r.roomCode === roomCode
+            ? { ...r, members: (r.members || []).filter((m) => m._id !== userId) }
+            : r
+        ),
+        rooms: state.rooms.map((r) =>
+          r.roomCode === roomCode
+            ? { ...r, members: (r.members || []).filter((m) => m._id !== userId) }
+            : r
+        ),
+      }));
+    } catch (e: unknown) {
+      const message =
+        e instanceof Error
+          ? e.message
+          : (e as { response?: { data?: { message?: string } } })?.response?.data?.message;
+    
+      toast.error(message || "Failed to remove user");
     }
   },
 }));

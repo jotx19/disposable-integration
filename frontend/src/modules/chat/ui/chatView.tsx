@@ -5,17 +5,14 @@ import { useChatStore } from "@/store/useChatStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { formatMessageTime } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Trash2 } from "lucide-react";
 import EmojiAvatar from "@/components/ui/EmojiAvatar";
 import Image from "next/image";
 
 interface Message {
   _id: string;
+  type?: "user" | "system";
   text?: string;
   sender: string | { _id: string; name?: string; profilepic?: string };
   createdAt: string;
@@ -34,6 +31,16 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const [showFull, setShowFull] = useState(false);
 
   if (!authUser) return null;
+
+  if (message.type === "system") {
+    return (
+      <div className="w-full flex justify-center my-2">
+        <div className="text-xs text-gray-500">
+          {message.text}
+        </div>
+      </div>
+    );
+  }
 
   const senderId =
     typeof message.sender === "string" ? message.sender : message.sender._id;

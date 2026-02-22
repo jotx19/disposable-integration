@@ -17,6 +17,7 @@ export interface Message {
   sender: string | User;
   room: string;
   createdAt: string;
+  type?: "user" | "system";
 }
 
 export interface Room {

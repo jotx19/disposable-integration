@@ -92,7 +92,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               : userRooms.map((room) => (
                   <SidebarMenuItem key={room._id}>
                     <SidebarMenuButton
-                      className="md:w-[calc(80vw-60vw)] w-[calc(80vh-45vh)] h-10 p-6 mx-auto"
+                      className="h-10 p-6 md:w-[calc(80vw-60vw)] w-[calc(80vh-53vh)] mx-auto rounded-md"
                       onClick={() => handleRoomClick(room._id)}
                     >
                       <div className="flex items-center px-2 w-full mx-auto text-xl gap-2">

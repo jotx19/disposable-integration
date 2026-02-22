@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Container } from "lucide-react";
 
 export default function LandingPage() {
   const [roomCode, setRoomCode] = useState("");
@@ -10,7 +11,7 @@ export default function LandingPage() {
 
   const handleJoin = () => {
     if (!roomCode) return;
-    router.push(`/chat/${roomCode}`);
+    router.push(`/join/${roomCode}`);
   };
 
   return (
@@ -36,14 +37,8 @@ export default function LandingPage() {
             variant="elevated"
             className="w-full sm:w-1/2 bg-black text-white border-gray-800 md:rounded-full"
           >
-            Create Room
-          </Button>
-          <Button
-          onClick={() => router.push('/playground')}
-            variant="elevated"
-            className="w-full sm:w-1/2 bg-black text-white border-gray-800 md:rounded-full"
-          >
-            Playground
+            <Container size={18} />
+            Rooms
           </Button>
 
           <div className="flex w-full sm:w-1/2">

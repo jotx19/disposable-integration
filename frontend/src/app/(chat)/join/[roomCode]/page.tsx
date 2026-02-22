@@ -3,7 +3,6 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { useRoomStore } from "@/store/useRoomStore";
-import { toast } from "sonner";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,7 +27,6 @@ const JoinRoomPage = ({ params }: JoinPageProps) => {
       const room = await joinRoom(roomCode);
 
       if (room) {
-        toast.success(`Joined room "${room.name}" successfully!`);
         setRedirecting(true);
 
         const timer = setInterval(() => {

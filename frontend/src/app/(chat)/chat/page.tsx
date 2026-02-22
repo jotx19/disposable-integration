@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRoomStore } from "@/store/useRoomStore";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -16,6 +16,8 @@ const ChatLandingPage = () => {
   const { userRooms, getUserRooms } = useRoomStore();
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
 
+  const [isRoomsLoading, setIsRoomsLoading] = useState(false); // ✅ added
+
   useEffect(() => {
     checkAuth().catch(() => {
       toast.error("Failed to check authentication.");
@@ -27,11 +29,17 @@ const ChatLandingPage = () => {
       router.replace("/sign-in");
     }
   }, [isCheckingAuth, authUser, router]);
+
   useEffect(() => {
     if (authUser) {
-      getUserRooms().catch(() => {
-        toast.error("Failed to load rooms.");
-      });
+      setIsRoomsLoading(true); // ✅ start skeleton
+      getUserRooms()
+        .catch(() => {
+          toast.error("Failed to load rooms.");
+        })
+        .finally(() => {
+          setIsRoomsLoading(false); // ✅ stop skeleton
+        });
     }
   }, [authUser, getUserRooms]);
 
@@ -64,6 +72,7 @@ const ChatLandingPage = () => {
             Groups you are joined will be listed below
           </p>
         </div>
+
         <div className="flex justify-end mb-4">
           <Link
             href="/chat/create"
@@ -74,7 +83,7 @@ const ChatLandingPage = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {isCheckingAuth ? (
+          {isRoomsLoading ? ( 
             <ul className="space-y-3 pt-9 md:w-2/3 mx-auto">
               {Array.from({ length: 5 }).map((_, idx) => (
                 <li
@@ -88,15 +97,9 @@ const ChatLandingPage = () => {
             </ul>
           ) : authUser && userRooms.length === 0 ? (
             <ul className="space-y-3 pt-9 md:w-2/3 mx-auto">
-              {Array.from({ length: 5 }).map((_, idx) => (
-                <li
-                  key={idx}
-                  className="flex justify-between items-center bg-gray-800 rounded-xl p-4"
-                >
-                  <div className="h-4 w-1/2 bg-gray-600 rounded animate-pulse"></div>
-                  <div className="h-4 w-6 bg-gray-600 rounded animate-pulse"></div>
-                </li>
-              ))}
+              <li className="bg-gray-800 rounded-xl p-4">
+                <p className="text-center text-white">No room found</p>
+              </li>
             </ul>
           ) : authUser ? (
             <ul className="space-y-3 pt-9 md:w-2/3 mx-auto">

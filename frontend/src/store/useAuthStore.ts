@@ -24,7 +24,6 @@ interface AuthState {
   checkAuth: () => Promise<void>;
   signup: (data: { name: string; email: string; password: string }) => Promise<void>;
   login: (data: { email: string; password: string }) => Promise<AuthUser | null>;
-  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   connectSocket: () => void;
   disconnectSocket: () => void;
@@ -88,35 +87,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  loginWithGoogle: async () => {
-    set({ isLoggingInWithGoogle: true });
-    try {
-      const googleAuthWindow = window.open(
-        `${BASE_URL}/api/auth/google`,
-        "Google Login"
-      );
-
-      const checkIfClosed = setInterval(() => {
-        if (googleAuthWindow?.closed) {
-          clearInterval(checkIfClosed);
-          axiosInstance
-            .get<AuthUser>("api/auth/google")
-            .then((res) => {
-              set({ authUser: res.data });
-              toast.success("Logged in with Google successfully!");
-              get().connectSocket();
-            })
-            .catch(() => {
-              toast.error("Google login failed");
-            });
-        }
-      }, 1000);
-    } catch {
-      toast.error("Error with Google login flow");
-    } finally {
-      set({ isLoggingInWithGoogle: false });
-    }
-  },
 
   logout: async () => {
     try {

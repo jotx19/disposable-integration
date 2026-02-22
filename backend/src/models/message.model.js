@@ -1,6 +1,4 @@
 import mongoose from "mongoose";
-import Room from "./room.model.js";
-import User from "./user.model.js";
 
 const messageSchema = new mongoose.Schema(
   {
@@ -12,10 +10,18 @@ const messageSchema = new mongoose.Schema(
     sender: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: false,
+    },
+    type: {
+      type: String,
+      enum: ["user", "system"],
+      default: "user",
     },
     text: {
       type: String,
-      required: true,
+      required: function () {
+        return this.type !== "system";
+      },
     },
     image: {
       type: String,
