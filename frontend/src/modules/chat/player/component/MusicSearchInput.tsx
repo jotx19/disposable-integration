@@ -126,7 +126,7 @@ export default function MusicSearchInput({ value, onChange, onPicked }: Props) {
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Search songs by name or artist..."
-          className="flex tracking-tight text-xs resize-none font-mono md:h-20 h-15 border-none focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[120px] overflow-y-auto"
+          className="flex tracking-tight text-base border-none md:text-xs resize-none font-mono md:h-20 h-15 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[120px] overflow-y-auto"
           autoComplete="on"
           inputMode="search"
         />
@@ -135,7 +135,7 @@ export default function MusicSearchInput({ value, onChange, onPicked }: Props) {
       <div
         className={[
           "absolute left-0 right-0 bottom-full mb-2 overflow-hidden",
-          "rounded-xl border border-border bg-background/80 backdrop-blur-md shadow-lg",
+          "rounded-xl border border-border bg-background backdrop-blur-md shadow-lg",
           "transition-[max-height,opacity] duration-200",
           panelOpen ? "opacity-100 max-h-[255px]" : "opacity-0 max-h-0 pointer-events-none",
         ].join(" ")}

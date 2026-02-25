@@ -42,23 +42,24 @@ export default function RoomPage() {
     return <SharedLogo />;
   }
 
-  return (
-    <div className="flex flex-col min-h-screen w-full max-w-5xl mx-auto p-2">
-      <div className="sticky top-2 z-50 bg-transparent">
-        <ChatHeader />
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {isMessagesLoading
-          ? Array(5)
-              .fill(0)
-              .map((_, idx) => <MessageSkeleton key={idx} />)
-          : messages.map((msg) => <ChatMessage key={msg._id} message={msg} />)}
-        <div ref={messageEndRef} />
-      </div>
-      <div className="mt-auto">
-        <ChatMessageInput />
-      </div>
+return (
+  <div className="flex flex-col min-h-screen w-full max-w-5xl mx-auto p-2">
+    <div className="sticky top-0 z-50 bg-transparent">
+      <ChatHeader />
     </div>
-  );
+
+    <div className="flex-1 overflow-y-auto p-4 space-y-2 pb-24">
+      {isMessagesLoading
+        ? Array(5)
+            .fill(0)
+            .map((_, idx) => <MessageSkeleton key={idx} />)
+        : messages.map((msg) => <ChatMessage key={msg._id} message={msg} />)}
+      <div ref={messageEndRef} />
+    </div>
+
+    <div className="sticky bottom-0 backdrop-blur z-50">
+      <ChatMessageInput />
+    </div>
+  </div>
+);
 }

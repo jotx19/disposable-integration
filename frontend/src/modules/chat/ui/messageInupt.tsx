@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useChatStore } from "@/store/useChatStore";
-import { X, Plus, Forward, Music2 } from "lucide-react";
+import { X, Plus, Forward, Music2, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -20,12 +20,12 @@ export default function ChatMessageInput() {
   const [musicMode, setMusicMode] = useState<boolean>(false);
   const [musicQuery, setMusicQuery] = useState<string>("");
   const [picked, setPicked] = useState<PickedSong | null>(null);
+  const [playerHidden, setPlayerHidden] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { sendMessage, selectedRoom } = useChatStore();
 
-  // 🔁 Restore player on refresh
   useEffect(() => {
     const saved = localStorage.getItem("player-state");
     if (!saved) return;
@@ -97,14 +97,42 @@ export default function ChatMessageInput() {
 
   return (
     <div className="w-full border-t border-border p-3">
-      {/* ✅ Mini player (same UI, now reusable + persistent) */}
-      <MiniPlayer
-        picked={picked}
-        onClose={() => {
-          setPicked(null);
-          localStorage.removeItem("player-state");
-        }}
-      />
+      {picked && (
+        <div
+          className={[
+            "overflow-hidden transition-all duration-700 ease-in-out",
+            playerHidden
+              ? "max-h-0 opacity-0 -translate-y-2"
+              : "max-h-[300px] opacity-100 translate-y-0",
+          ].join(" ")}
+        >
+          <MiniPlayer
+            picked={picked}
+            onClose={() => {
+              setPicked(null);
+              localStorage.removeItem("player-state");
+            }}
+          />
+        </div>
+      )}
+      {picked && (
+        <div className="absolute left-1/2 -top-3 -translate-x-1/2 z-10">
+          <Button
+            type="button"
+            variant="secondary"
+            size="icon"
+            className="h-7 w-7 rounded-full shadow-md"
+            onClick={() => setPlayerHidden((v) => !v)}
+            title={playerHidden ? "Show player" : "Hide player"}
+          >
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${
+                playerHidden ? "rotate-180" : ""
+              }`}
+            />
+          </Button>
+        </div>
+      )}
 
       {imagePreview && (
         <div className="relative w-24 h-24 mb-3">
@@ -183,7 +211,6 @@ export default function ChatMessageInput() {
                 setMusicMode(false);
                 setMusicQuery("");
 
-                // 💾 Save for refresh persistence
                 localStorage.setItem(
                   "player-state",
                   JSON.stringify({
