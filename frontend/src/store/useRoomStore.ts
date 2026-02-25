@@ -24,7 +24,6 @@ interface RoomExpiration {
   timestamp: number;
 }
 
-// Temporary types for API response
 interface RawMember {
   _id: string;
   name: string;

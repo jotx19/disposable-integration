@@ -37,6 +37,22 @@ io.on('connection', (socket) => {
         delete userSocketMap[userId];
         io.emit('ONLINE_USERS', Object.keys(userSocketMap));
       });
+      socket.on("play_song", ({ roomId, song }) => {
+        socket.to(roomId).emit("room_play_song", { song });
+      });
+    
+      socket.on("pause_song", ({ roomId, currentTime }) => {
+        socket.to(roomId).emit("room_pause_song", { currentTime });
+      });
+    
+      socket.on("seek_song", ({ roomId, currentTime }) => {
+        socket.to(roomId).emit("room_seek_song", { currentTime });
+      });
+    
+      socket.on("stop_song", ({ roomId }) => {
+        socket.to(roomId).emit("room_stop_song");
+      });
+      
     });
 
 export { io, app, server };
