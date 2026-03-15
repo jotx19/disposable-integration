@@ -114,7 +114,7 @@ export function CallDialog() {
 
   const dialogClass = isFullscreen
     ? "relative w-full h-full bg-black"
-    : "relative w-full max-w-6xl h-[96vh] bg-black rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl";
+    : "relative w-full max-w-5xl h-[86vh] bg-black rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl";
 
   return (
     <div className={containerClass}>
