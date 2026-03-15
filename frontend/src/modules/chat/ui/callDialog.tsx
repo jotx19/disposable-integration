@@ -17,11 +17,11 @@ function formatDuration(seconds: number) {
 }
 
 function getGridClass(count: number) {
-  if (count === 1) return "grid-cols-1 grid-rows-1";
-  if (count === 2) return "grid-cols-2 grid-rows-1";
-  if (count <= 4) return "grid-cols-2 grid-rows-2";
-  return "grid-cols-3 grid-rows-2";
-}
+    if (count === 1) return "grid-cols-1 grid-rows-1";
+    if (count === 2) return "grid-cols-1 grid-rows-2 sm:grid-cols-2 sm:grid-rows-1";
+    if (count <= 4) return "grid-cols-2 grid-rows-2";
+    return "grid-cols-3 grid-rows-2";
+  }
 
 function VideoTile({ stream, label, muted = false }: { stream: MediaStream | null; label: string; muted?: boolean }) {
   const ref = useRef<HTMLVideoElement>(null);
