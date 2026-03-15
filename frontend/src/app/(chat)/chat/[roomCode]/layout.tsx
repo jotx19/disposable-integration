@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import { SidebarInset } from "@/components/ui/sidebar";
 import { useRoomStore } from "@/store/useRoomStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { CallDialog } from "@/modules/chat/ui/callDialog"; 
 
 interface Props {
   children: React.ReactNode;
@@ -26,7 +27,7 @@ const ChatLayout: React.FC<Props> = ({ children }) => {
   }, [getUserRooms, checkAuth]);
 
   return (
-  <ThemeProvider>
+    <ThemeProvider>
       <ChatSidebar
         authUser={authUser}
         userRooms={userRooms}
@@ -34,6 +35,7 @@ const ChatLayout: React.FC<Props> = ({ children }) => {
       >
         <SidebarInset>{children}</SidebarInset>
       </ChatSidebar>
+      <CallDialog /> {/* 👈 add this */}
     </ThemeProvider>
   );
 };

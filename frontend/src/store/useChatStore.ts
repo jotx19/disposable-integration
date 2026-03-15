@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { toast } from "sonner";
 import { axiosInstance } from "../lib/axios";
 import { useAuthStore } from "./useAuthStore";
+import { useCallStore } from "./useCallStore";
 import { Socket } from "socket.io-client";
 
 export interface User {
@@ -109,24 +110,36 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
     socket.emit("joinRoom", selectedRoom._id);
 
+    socket.emit("get-active-call", { roomId: selectedRoom._id });
+
     socket.on("message", (message: Message) => {
       if (message.room === selectedRoom._id) {
         set((state) => {
           const exists = state.messages.some((m) => m._id === message._id);
-          return exists
-            ? state
-            : { messages: [...state.messages, message] };
+          return exists ? state : { messages: [...state.messages, message] };
         });
       }
+    });
+
+    socket.on("call-active", ({ hostId, roomId }: { hostId: string; roomId: string }) => {
+      const authUser = useAuthStore.getState().authUser;
+      if (authUser && hostId !== authUser._id) {
+        useCallStore.getState().setActiveCallInRoom({ hostId, roomId });
+      }
+    });
+
+    socket.on("call-inactive", () => {
+      useCallStore.getState().setActiveCallInRoom(null);
     });
   },
 
   unsubscribeFromMessages: () => {
     const socket: Socket | null = useAuthStore.getState().socket;
     if (!socket) return;
-
     socket.emit("leaveRoom");
     socket.off("message");
+    socket.off("call-active");
+    socket.off("call-inactive");
   },
 
   setSelectedRoom: (room) => {

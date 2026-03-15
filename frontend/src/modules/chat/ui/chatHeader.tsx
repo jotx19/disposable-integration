@@ -2,11 +2,13 @@
 
 import React, { useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
-import { Info, Copy, Link2 } from "lucide-react";
+import { Info, Copy, Link2, Video, PhoneCall } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 import { useChatStore } from "@/store/useChatStore";
 import { useRoomStore } from "@/store/useRoomStore";
+import { useCallStore } from "@/store/useCallStore";
 
 import { Badge } from "@/components/ui/badge";
 import { Timer } from "@/modules/chat/ui/timer";
@@ -17,12 +19,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { RoomMembersButton } from "./roomMemberButton"; 
+import { RoomMembersButton } from "./roomMemberButton";
 
 export const ChatHeader: React.FC = () => {
   const { roomCode } = useParams<{ roomCode: string }>();
   const { selectedRoom, setSelectedRoom } = useChatStore();
   const { userRooms } = useRoomStore();
+  const {
+    isInCall, isMinimized, startCall, joinCall,
+    openCall, maximize, activeCallInRoom,
+  } = useCallStore();
 
   useEffect(() => {
     if (!roomCode) return;
@@ -56,7 +62,17 @@ export const ChatHeader: React.FC = () => {
     void copyText(selectedRoom.name, "Room name");
   };
 
+  const handleCallClick = () => {
+    if (!selectedRoom) return;
+    if (isInCall && isMinimized) { maximize(); return; }
+    if (isInCall) { openCall(); return; }
+    if (activeCallInRoom) { joinCall(activeCallInRoom.roomId, "video"); return; }
+    startCall(selectedRoom._id, "video");
+  };
+
   if (!selectedRoom) return null;
+
+  const callIsActive = isInCall || !!activeCallInRoom;
 
   return (
     <div className="flex justify-center p-2 bg-transparent">
@@ -69,11 +85,49 @@ export const ChatHeader: React.FC = () => {
         />
 
         <div className="flex items-center gap-2">
+
+          {activeCallInRoom && !isInCall && (
+            <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-1.5 animate-in slide-in-from-top-2">
+              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+              <span className="text-xs">Call in progress</span>
+              <button
+                onClick={() => joinCall(activeCallInRoom.roomId, "video")}
+                className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2.5 py-1 rounded-full transition-colors"
+              >
+                Join
+              </button>
+            </div>
+          )}
+
           <Badge
             variant="secondary"
-            className="md:text-xs px-3 py-2 flex items-center gap-2"
+            className="md:text-xs flex items-center relative overflow-visible"
           >
-            INFO
+            {callIsActive && (
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-background z-10" />
+            )}
+            <button
+              type="button"
+              onClick={handleCallClick}
+              aria-label={isInCall ? "Return to call" : activeCallInRoom ? "Join call" : "Start video call"}
+              className={cn(
+                "p-1 rounded-full transition",
+                isInCall
+                  ? "text-green-400 hover:bg-green-500/10"
+                  : activeCallInRoom
+                  ? "text-green-400 hover:bg-green-500/10"
+                  : "hover:bg-white/10"
+              )}
+            >
+              {isInCall ? (
+                <PhoneCall className="h-4 w-4" />
+              ) : (
+                <Video className="h-4 w-4" />
+              )}
+            </button>
+          </Badge>
+
+          <Badge variant="secondary" className="md:text-xs flex items-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -93,17 +147,13 @@ export const ChatHeader: React.FC = () => {
                 className="p-0 w-[calc(100vw-25px)] mx-auto max-w-[20rem] sm:w-80 rounded-2xl"
               >
                 <div className="px-3 py-2 border-b">
-                  <p className="text-sm font-semibold text-center">
-                    Room Information
-                  </p>
+                  <p className="text-sm font-semibold text-center">Room Information</p>
                 </div>
 
                 <div className="px-3 py-3 border-b">
                   <p className="text-xs text-muted-foreground mb-2">Room Name</p>
                   <div className="h-10 w-full rounded-full border px-3 flex items-center gap-2">
-                    <span className="flex-1 truncate text-sm text-center">
-                      {selectedRoom.name}
-                    </span>
+                    <span className="flex-1 truncate text-sm text-center">{selectedRoom.name}</span>
                     <button
                       type="button"
                       onClick={handleCopyName}
@@ -117,12 +167,8 @@ export const ChatHeader: React.FC = () => {
 
                 <div className="px-3 py-3">
                   <p className="text-xs text-muted-foreground mb-2">Invite Link</p>
-
                   <div className="h-10 w-full rounded-full border flex items-center overflow-hidden">
-                    <span className="flex-1 truncate text-sm text-center px-3">
-                      {displayRoomCode}
-                    </span>
-
+                    <span className="flex-1 truncate text-sm text-center px-3">{displayRoomCode}</span>
                     <button
                       type="button"
                       onClick={handleCopyInvite}

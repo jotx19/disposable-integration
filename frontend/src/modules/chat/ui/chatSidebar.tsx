@@ -68,7 +68,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
       >
         <SidebarHeader>
           {authUser && (
-            <div className="flex items-center gap-2 px-2 py-2 md:w-[25vh] w-[18vh] md:justify-end h-[7vh] text-lg font-bold mx-auto justify-center">
+            <div className="flex items-center gap-2 px-2 py-2.5 md:w-[25vh] w-[18vh] md:justify-end h-[7vh] text-lg font-bold mx-auto justify-center">
               <Badge
                 variant="secondary"
                 className="bg-blue-500 text-white text-lg w-full h-full dark:bg-blue-600 flex justify-center items-center"
