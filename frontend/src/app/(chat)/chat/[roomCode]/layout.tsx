@@ -35,7 +35,7 @@ const ChatLayout: React.FC<Props> = ({ children }) => {
       >
         <SidebarInset>{children}</SidebarInset>
       </ChatSidebar>
-      <CallDialog /> {/* 👈 add this */}
+      <CallDialog /> 
     </ThemeProvider>
   );
 };
