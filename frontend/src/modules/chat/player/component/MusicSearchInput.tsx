@@ -125,8 +125,8 @@ export default function MusicSearchInput({ value, onChange, onPicked }: Props) {
         <Textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Search songs by name or artist..."
-          className="flex tracking-tight text-base border-none md:text-xs resize-none font-mono md:h-20 h-15 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[120px] overflow-y-auto"
+          placeholder="Search songs!"
+          className="flex tracking-tight resize-none font-mono md:h-20 h-15 border-none focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[120px] overflow-y-auto"
           autoComplete="on"
           inputMode="search"
         />

@@ -108,10 +108,8 @@ export default function ChatMessageInput() {
         >
           <MiniPlayer
             picked={picked}
-            onClose={() => {
-              setPicked(null);
-              localStorage.removeItem("player-state");
-            }}
+            onClose={() => setPicked(null)}
+            onSongChange={(song) => setPicked(song)}
           />
         </div>
       )}

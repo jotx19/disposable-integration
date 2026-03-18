@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { X, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import PlayerDialog from "./PlayerDialog";
 
 export type PickedSong = {
   id: string;
@@ -23,16 +24,17 @@ function formatTime(time: number): string {
 type Props = {
   picked: PickedSong | null;
   onClose: () => void;
+  onSongChange: (song: PickedSong) => void;
 };
 
-export default function MiniPlayer({ picked, onClose }: Props) {
+export default function MiniPlayer({ picked, onClose, onSongChange }: Props) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  // 🔁 Restore from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem("player-state");
     if (!saved) return;
@@ -51,7 +53,6 @@ export default function MiniPlayer({ picked, onClose }: Props) {
     } catch {}
   }, [picked]);
 
-  // 💾 Save progress every 2s
   useEffect(() => {
     if (!picked) return;
 
@@ -91,7 +92,8 @@ export default function MiniPlayer({ picked, onClose }: Props) {
 
   if (!picked) return null;
 
-  const togglePlayPause = () => {
+  const togglePlayPause = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     const el = audioRef.current;
     if (!el) return;
 
@@ -102,7 +104,8 @@ export default function MiniPlayer({ picked, onClose }: Props) {
     }
   };
 
-  const stopPlayer = () => {
+  const stopPlayer = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const el = audioRef.current;
     if (el) {
       el.pause();
@@ -125,48 +128,72 @@ export default function MiniPlayer({ picked, onClose }: Props) {
   };
 
   return (
-    <div className="mb-2 rounded-xl border border-border bg-background/60 backdrop-blur-md p-2">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <img
-            src={picked.imageUrl}
-            alt={picked.name}
-            className="h-10 w-10 rounded-md object-cover bg-secondary/50"
-          />
-          <div className="min-w-0">
-            <p className="text-sm font-medium truncate">{picked.name}</p>
-            <p className="text-xs text-muted-foreground truncate">
-              {picked.artist}
-            </p>
+    <>
+      <div
+        className="mb-2 rounded-xl border border-border bg-background/60 backdrop-blur-md p-2 cursor-pointer"
+        onClick={() => setDialogOpen(true)}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <img
+              src={picked.imageUrl}
+              alt={picked.name}
+              className="h-10 w-10 rounded-md object-cover bg-secondary/50"
+            />
+            <div className="min-w-0">
+              <p className="text-sm font-medium truncate">{picked.name}</p>
+              <p className="text-xs text-muted-foreground truncate">
+                {picked.artist}
+              </p>
+            </div>
+          </div>
+
+          <div
+            className="flex items-center gap-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Button type="button" size="icon" variant="secondary" onClick={togglePlayPause}>
+              {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+            </Button>
+            <Button type="button" size="icon" variant="ghost" onClick={stopPlayer}>
+              <X className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button type="button" size="icon" variant="secondary" onClick={togglePlayPause}>
-            {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-          </Button>
-          <Button type="button" size="icon" variant="ghost" onClick={stopPlayer}>
-            <X className="h-4 w-4" />
-          </Button>
+        <div
+          className="mt-2 grid gap-1"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Slider value={[currentTime]} max={duration || 0} onValueChange={seek} />
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(duration)}</span>
+          </div>
         </div>
+
+        <audio
+          ref={audioRef}
+          src={picked.audioUrl}
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onEnded={() => setPlaying(false)}
+          autoPlay
+        />
       </div>
 
-      <div className="mt-2 grid gap-1">
-        <Slider value={[currentTime]} max={duration || 0} onValueChange={seek} />
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>{formatTime(currentTime)}</span>
-          <span>{formatTime(duration)}</span>
-        </div>
-      </div>
-
-      <audio
-        ref={audioRef}
-        src={picked.audioUrl}
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
-        onEnded={() => setPlaying(false)}
-        autoPlay
+      <PlayerDialog
+        picked={picked}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onSongChange={onSongChange}
+        audioRef={audioRef}
+        playing={playing}
+        currentTime={currentTime}
+        duration={duration}
+        onTogglePlay={togglePlayPause}
+        onSeek={seek}
       />
-    </div>
+    </>
   );
 }
