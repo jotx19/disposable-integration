@@ -51,7 +51,7 @@ export default function CreateRoomPage() {
 
           <DotLottieReact
             src="/room2.lottie"
-            className="md:w-auto w-[70vw] h-[40vh]"
+            className="md:w-auto w-[70vw]  h-[40vh]"
             autoplay
             loop
           />
