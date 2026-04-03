@@ -16,7 +16,7 @@ const ChatLandingPage = () => {
   const { userRooms, getUserRooms } = useRoomStore();
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
 
-  const [isRoomsLoading, setIsRoomsLoading] = useState(false); // ✅ added
+  const [isRoomsLoading, setIsRoomsLoading] = useState(false);
 
   useEffect(() => {
     checkAuth().catch(() => {
@@ -32,13 +32,13 @@ const ChatLandingPage = () => {
 
   useEffect(() => {
     if (authUser) {
-      setIsRoomsLoading(true); // ✅ start skeleton
+      setIsRoomsLoading(true); 
       getUserRooms()
         .catch(() => {
           toast.error("Failed to load rooms.");
         })
         .finally(() => {
-          setIsRoomsLoading(false); // ✅ stop skeleton
+          setIsRoomsLoading(false); 
         });
     }
   }, [authUser, getUserRooms]);

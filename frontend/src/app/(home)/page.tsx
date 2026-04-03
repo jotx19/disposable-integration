@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Container } from "lucide-react";
+import Silk from "@/modules/home/ui/silk";
 
 export default function LandingPage() {
   const [roomCode, setRoomCode] = useState("");
@@ -16,51 +17,59 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F4F4F0] dark:bg-background">
-    <main
-      className="flex w-full min-h-[calc(100vh-25vh)] -mt-20 overflow-hidden items-center justify-center
-      md:bg-[linear-gradient(45deg,#007b84_0%,#d35c2f_50%,#b23a68_100%)] bg-[linear-gradient(45deg,#007b84_0%,#d35c2f_50%,#b23a68_100%)]
-      rounded-3xl md:m-none m-5 p-6"
-    >
-      <div className="max-w-7xl w-full text-center space-y-6">
-        <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white">
-          Disposable Chatrooms
-        </h1>
+      <main
+        className="flex w-full min-h-[calc(100vh-25vh)] -mt-20 overflow-hidden items-center justify-center
+        rounded-3xl md:m-none m-5 p-6 relative"
+      >
+        <div className="absolute inset-0 rounded-3xl overflow-hidden">
+          <Silk
+            speed={3}
+            scale={1}
+            color="#475569" 
+            noiseIntensity={1.5}
+            rotation={0}
+          />
+        </div>
 
-        <p className="md:text-lg text-sm md:w-1/2 mx-auto font-mono text-gray-200 tracking-tight">
-          Create a private chatroom instantly. Share the link, no
-          hassle. Conversations disappear when you are done.
-        </p>
+        <div className="relative z-10 max-w-7xl w-full text-center space-y-6">
+          <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white">
+            Disposable Chatrooms
+          </h1>
 
-        <div className="flex w-full max-w-md mx-auto flex-col sm:flex-row gap-4 justify-center">
-          <Button
-          onClick={() => router.push('/chat')}
-            variant="elevated"
-            className="w-full sm:w-1/2 bg-black text-white border-gray-800 md:rounded-full"
-          >
-            <Container size={18} />
-            Rooms
-          </Button>
+          <p className="md:text-lg text-xs md:w-1/2 mx-auto font-mono text-gray-200 tracking-tight">
+            Create, Share no
+            hassle. Conversations disappear when you are done.
+          </p>
 
-          <div className="flex w-full sm:w-1/2">
-            <input
-              type="text"
-              placeholder="Enter Room Code"
-              value={roomCode}
-              onChange={(e) => setRoomCode(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-l-full bg-black text-white"
-            />
+          <div className="flex w-full max-w-md mx-auto flex-col sm:flex-row gap-4 justify-center">
             <Button
+              onClick={() => router.push("/chat")}
               variant="elevated"
-              className="text-white rounded-r-3xl border-gray-800 rounded-l-none bg-black"
-              onClick={handleJoin}
+              className="w-full sm:w-1/2 bg-black text-white border-gray-800 rounded-full"
             >
-              Join
+              <Container size={18} />
+              Rooms
             </Button>
+
+            <div className="flex w-full sm:w-1/2">
+              <input
+                type="text"
+                placeholder="Enter Room Code"
+                value={roomCode}
+                onChange={(e) => setRoomCode(e.target.value)}
+                className="flex-1 px-3 py-2 rounded-l-full bg-black text-white"
+              />
+              <Button
+                variant="elevated"
+                className="text-white rounded-r-3xl border-gray-800 rounded-l-none bg-black"
+                onClick={handleJoin}
+              >
+                Join
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
     </div>
-
   );
 }
