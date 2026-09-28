@@ -8,7 +8,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ChevronLeft, Loader2, Eye, EyeOff } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowLeft01Icon, Loading03Icon, ViewIcon, ViewOffIcon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
@@ -97,7 +98,7 @@ export default function SignUpPage() {
             asChild
           >
             <Link href="/">
-              <ChevronLeft className="h-4 w-4" />
+              <HugeiconsIcon icon={ArrowLeft01Icon} className="h-4 w-4" />
             </Link>
           </Button>
         </div>
@@ -156,9 +157,9 @@ export default function SignUpPage() {
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
               {showPassword ? (
-                <EyeOff className="h-4 w-4" />
+                <HugeiconsIcon icon={ViewOffIcon} className="h-4 w-4" />
               ) : (
-                <Eye className="h-4 w-4" />
+                <HugeiconsIcon icon={ViewIcon} className="h-4 w-4" />
               )}
             </button>
           </div>
@@ -200,7 +201,7 @@ export default function SignUpPage() {
             disabled={isSigningUp}
           >
             {isSigningUp ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <HugeiconsIcon icon={Loading03Icon} className="h-4 w-4 animate-spin" />
             ) : (
               "Create Account"
             )}

@@ -4,10 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useCallStore } from "@/store/useCallStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useChatStore } from "@/store/useChatStore";
-import {
-  Mic, MicOff, Video, VideoOff, PhoneOff,
-  Monitor, MonitorOff, Minus, Phone, Maximize2, Minimize2,
-} from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Mic01Icon, MicOff01Icon, Video01Icon, VideoOffIcon, CallEnd01Icon, ComputerIcon, ComputerRemoveIcon, MinusSignIcon, Call02Icon, Maximize01Icon, Minimize01Icon } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
 
 function formatDuration(seconds: number) {
@@ -23,7 +21,7 @@ function getGridClass(count: number) {
     return "grid-cols-3 grid-rows-2";
   }
 
-function VideoTile({ stream, label, muted = false }: { stream: MediaStream | null; label: string; muted?: boolean }) {
+function VideoTile({ stream, label, muted = false, mirror = false }: { stream: MediaStream | null; label: string; muted?: boolean; mirror?: boolean }) {
   const ref = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     if (ref.current && stream) ref.current.srcObject = stream;
@@ -32,10 +30,10 @@ function VideoTile({ stream, label, muted = false }: { stream: MediaStream | nul
   return (
     <div className="relative w-full h-full bg-zinc-900 rounded-xl overflow-hidden flex items-center justify-center">
       {stream ? (
-        <video ref={ref} autoPlay playsInline muted={muted} className="w-full h-full object-cover" />
+        <video ref={ref} autoPlay playsInline muted={muted} className={cn("w-full h-full object-cover", mirror && "-scale-x-100")} />
       ) : (
         <div className="flex flex-col items-center gap-2 text-zinc-600">
-          <VideoOff className="w-8 h-8" />
+          <HugeiconsIcon icon={VideoOffIcon} className="w-8 h-8" />
           <span className="text-xs">No video</span>
         </div>
       )}
@@ -57,10 +55,10 @@ function IncomingCallBanner() {
         <span className="text-xs text-zinc-400">from {incomingCall.from}</span>
       </div>
       <button onClick={rejectIncomingCall} className="p-2 rounded-full bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white transition-colors">
-        <PhoneOff className="w-4 h-4" />
+        <HugeiconsIcon icon={CallEnd01Icon} className="w-4 h-4" />
       </button>
       <button onClick={acceptIncomingCall} className="p-2 rounded-full bg-green-500/20 hover:bg-green-500 text-green-400 hover:text-white transition-colors">
-        <Phone className="w-4 h-4" />
+        <HugeiconsIcon icon={Call02Icon} className="w-4 h-4" />
       </button>
     </div>
   );
@@ -121,7 +119,7 @@ export function CallDialog() {
       <div className={dialogClass}>
 
         <div className={cn("absolute inset-0 grid gap-1 p-1", getGridClass(totalCount))}>
-          <VideoTile stream={localStream} label={`${authUser?.name ?? "You"} (you)`} muted />
+          <VideoTile stream={localStream} label={`${authUser?.name ?? "You"} (you)`} muted mirror />
           {participantList.map((p) => (
             <VideoTile key={p.userId} stream={p.stream} label={getParticipantName(p.userId)} />
           ))}
@@ -138,7 +136,7 @@ export function CallDialog() {
               {totalCount} participant{totalCount !== 1 && "s"}
             </span>
             <button onClick={minimize} className="p-1.5 sm:p-2 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white/60 hover:text-white hover:bg-black/60 transition-all">
-              <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
+              <HugeiconsIcon icon={MinusSignIcon} className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
@@ -148,34 +146,34 @@ export function CallDialog() {
             onClick={toggleAudio}
             active={isAudioMuted}
             label={isAudioMuted ? "Unmute" : "Mute"}
-            icon={isAudioMuted ? <MicOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Mic className="w-4 h-4 sm:w-5 sm:h-5" />}
+            icon={isAudioMuted ? <HugeiconsIcon icon={MicOff01Icon} className="w-4 h-4 sm:w-5 sm:h-5" /> : <HugeiconsIcon icon={Mic01Icon} className="w-4 h-4 sm:w-5 sm:h-5" />}
           />
           {callMode === "video" && (
             <ControlButton
               onClick={toggleVideo}
               active={isVideoOff}
               label={isVideoOff ? "Video" : "Stop"}
-              icon={isVideoOff ? <VideoOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Video className="w-4 h-4 sm:w-5 sm:h-5" />}
+              icon={isVideoOff ? <HugeiconsIcon icon={VideoOffIcon} className="w-4 h-4 sm:w-5 sm:h-5" /> : <HugeiconsIcon icon={Video01Icon} className="w-4 h-4 sm:w-5 sm:h-5" />}
             />
           )}
           <ControlButton
             onClick={toggleScreenShare}
             active={isSharingScreen}
             label={isSharingScreen ? "Stop" : "Share"}
-            icon={isSharingScreen ? <MonitorOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Monitor className="w-4 h-4 sm:w-5 sm:h-5" />}
+            icon={isSharingScreen ? <HugeiconsIcon icon={ComputerRemoveIcon} className="w-4 h-4 sm:w-5 sm:h-5" /> : <HugeiconsIcon icon={ComputerIcon} className="w-4 h-4 sm:w-5 sm:h-5" />}
           />
           <ControlButton
             onClick={() => setIsFullscreen((f) => !f)}
             active={isFullscreen}
             label={isFullscreen ? "Window" : "Maximize"}
-            icon={isFullscreen ? <Minimize2 className="w-4 h-4 sm:w-5 sm:h-5" /> : <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />}
+            icon={isFullscreen ? <HugeiconsIcon icon={Minimize01Icon} className="w-4 h-4 sm:w-5 sm:h-5" /> : <HugeiconsIcon icon={Maximize01Icon} className="w-4 h-4 sm:w-5 sm:h-5" />}
           />
           <div className="w-px h-8 bg-white/10 mx-0.5 sm:mx-1" />
           <button
             onClick={isHost ? endCall : leaveCall}
             className="flex flex-col items-center gap-1 px-3 sm:px-5 py-2 sm:py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-colors"
           >
-            <PhoneOff className="w-4 h-4 sm:w-5 sm:h-5" />
+            <HugeiconsIcon icon={CallEnd01Icon} className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="text-[9px] sm:text-[10px]">{isHost ? "End" : "Leave"}</span>
           </button>
         </div>

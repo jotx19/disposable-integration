@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { ROOM_TTL_HOURS, DEFAULT_ROOM_TTL_HOURS } from "../lib/roomTtl.js";
 const userSchema = new mongoose.Schema(
     {
         email:{
@@ -24,6 +25,11 @@ const userSchema = new mongoose.Schema(
         profilepic:{
             type: String,
             default: "",
+        },
+        defaultRoomTtlHours:{
+            type: Number,
+            enum: ROOM_TTL_HOURS,
+            default: DEFAULT_ROOM_TTL_HOURS,
         }
     },
     {timestamps: true}

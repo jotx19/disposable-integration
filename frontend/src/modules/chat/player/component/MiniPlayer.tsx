@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { X, Pause, Play } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Cancel01Icon, PauseIcon, PlayIcon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import PlayerDialog from "./PlayerDialog";
@@ -153,10 +154,10 @@ export default function MiniPlayer({ picked, onClose, onSongChange }: Props) {
             onClick={(e) => e.stopPropagation()}
           >
             <Button type="button" size="icon" variant="secondary" onClick={togglePlayPause}>
-              {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+              {playing ? <HugeiconsIcon icon={PauseIcon} className="h-4 w-4" /> : <HugeiconsIcon icon={PlayIcon} className="h-4 w-4" />}
             </Button>
             <Button type="button" size="icon" variant="ghost" onClick={stopPlayer}>
-              <X className="h-4 w-4" />
+              <HugeiconsIcon icon={Cancel01Icon} className="h-4 w-4" />
             </Button>
           </div>
         </div>

@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useChatStore } from "@/store/useChatStore";
-import { X, Plus, Forward, Music2, ChevronDown } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { SentIcon, MusicNote01Icon, ArrowDown01Icon } from "@hugeicons/core-free-icons";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import MusicSearchInput, {
@@ -15,16 +15,22 @@ import MiniPlayer from "@/modules/chat/player/component/MiniPlayer";
 
 export default function ChatMessageInput() {
   const [text, setText] = useState<string>("");
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const [musicMode, setMusicMode] = useState<boolean>(false);
   const [musicQuery, setMusicQuery] = useState<string>("");
   const [picked, setPicked] = useState<PickedSong | null>(null);
   const [playerHidden, setPlayerHidden] = useState(false);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const { sendMessage, selectedRoom } = useChatStore();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Grow the textarea with its content; CSS max-height caps it and it scrolls beyond that.
+  useLayoutEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [text, musicMode]);
 
   useEffect(() => {
     const saved = localStorage.getItem("player-state");
@@ -36,27 +42,8 @@ export default function ChatMessageInput() {
     } catch {}
   }, []);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select a valid image file");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onloadend = () => setImagePreview(String(reader.result));
-    reader.readAsDataURL(file);
-  };
-
-  const removeImage = () => {
-    setImagePreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
   const handleSendMessage = async () => {
-    if (!text.trim() && !imagePreview) return;
+    if (!text.trim()) return;
 
     if (!selectedRoom?._id) {
       toast.error("Please select a room first");
@@ -66,13 +53,10 @@ export default function ChatMessageInput() {
     try {
       await sendMessage({
         text: text.trim(),
-        image: imagePreview,
         roomId: selectedRoom._id,
       });
 
       setText("");
-      setImagePreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
     } catch {
       toast.error("Failed to send message");
     }
@@ -96,7 +80,7 @@ export default function ChatMessageInput() {
   }
 
   return (
-    <div className="w-full border-t border-border p-3">
+    <div className="w-full px-3 pb-3 pt-2">
       {picked && (
         <div
           className={[
@@ -123,7 +107,7 @@ export default function ChatMessageInput() {
             onClick={() => setPlayerHidden((v) => !v)}
             title={playerHidden ? "Show player" : "Hide player"}
           >
-            <ChevronDown
+            <HugeiconsIcon icon={ArrowDown01Icon}
               className={`h-4 w-4 transition-transform ${
                 playerHidden ? "rotate-180" : ""
               }`}
@@ -132,56 +116,19 @@ export default function ChatMessageInput() {
         </div>
       )}
 
-      {imagePreview && (
-        <div className="relative w-24 h-24 mb-3">
-          <Image
-            src={imagePreview}
-            alt="Preview"
-            fill
-            className="object-cover rounded-lg border"
-          />
-          <Button
-            type="button"
-            size="icon"
-            variant="destructive"
-            className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
-            onClick={removeImage}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
-
-      <div className="flex items-start gap-2 w-full bg-none backdrop-blur-md border border-border rounded-xl px-3 py-1 shadow-sm">
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          className="hidden"
-          onChange={handleImageChange}
-        />
-
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="p-2 rounded-full hover:bg-muted transition"
-          title="Attach image"
-        >
-          <Plus className="h-5 w-5 text-muted-foreground" />
-        </button>
-
+      <div className="flex items-end gap-2 w-full min-w-0 bg-background/60 dark:bg-background/60 backdrop-blur-xl border border-border rounded-2xl px-3 py-1 shadow-lg">
         <button
           type="button"
           onClick={() => setMusicMode((v) => !v)}
           title="Music search"
           className={[
-            "p-2 rounded-full transition flex items-center gap-2",
+            "shrink-0 self-start mt-1 p-2 rounded-full transition flex items-center gap-2",
             musicMode
               ? "bg-[#421F05] text-[#F0B100] shadow-md"
               : "hover:bg-muted text-muted-foreground",
           ].join(" ")}
         >
-          <Music2
+          <HugeiconsIcon icon={MusicNote01Icon}
             className={[
               "h-5 w-5 transition",
               musicMode ? "text-[#F0B100]" : "text-muted-foreground",
@@ -195,7 +142,7 @@ export default function ChatMessageInput() {
           )}
         </button>
 
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           {musicMode ? (
             <MusicSearchInput
               value={musicQuery}
@@ -220,11 +167,12 @@ export default function ChatMessageInput() {
             />
           ) : (
             <Textarea
+              ref={textareaRef}
               value={text}
               placeholder="Sending message!"
               onChange={(e) => setText(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="flex tracking-tight resize-none font-mono md:h-20 h-15 border-none focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[120px] overflow-y-auto"
+              className="flex min-w-0 wrap-anywhere tracking-tight resize-none font-mono border-none focus-visible:ring-0 focus-visible:ring-offset-0 min-h-10 md:min-h-20 max-h-[40vh] overflow-x-hidden overflow-y-auto"
               rows={1}
             />
           )}
@@ -232,12 +180,12 @@ export default function ChatMessageInput() {
 
         <Button
           onClick={() => void handleSendMessage()}
-          className="rounded-full"
+          className="shrink-0 rounded-full mb-1"
           size="icon"
-          disabled={!text.trim() && !imagePreview}
+          disabled={!text.trim()}
           type="button"
         >
-          <Forward className="h-5 w-5" />
+          <HugeiconsIcon icon={SentIcon} className="h-5 w-5" />
         </Button>
       </div>
 

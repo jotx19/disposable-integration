@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
-import { PanelLeftIcon, BadgeCheckIcon, ArrowUpRightIcon } from "lucide-react";
+import Link from "next/link";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { SidebarLeftIcon, ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
 import {
   Sidebar,
   SidebarContent,
@@ -12,16 +13,14 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarProvider,
+  SidebarSeparator,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Footer } from "@/modules/home/ui/footer";
+import UserMenu from "@/modules/chat/ui/userMenu";
 import { useChatStore, Room , User } from "@/store/useChatStore";
-
-const MemoizedFooter = React.memo(Footer);
 
 interface ChatSidebarProps {
   children?: React.ReactNode;
@@ -36,8 +35,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   userRooms,
   loading,
 }) => {
-  const router = useRouter();
-  const { setSelectedRoom } = useChatStore();
+  const { selectedRoom, setSelectedRoom } = useChatStore();
   const [open, setOpen] = React.useState(true);
 
   const handleRoomClick = React.useCallback(
@@ -58,7 +56,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
     <SidebarProvider open={open} onOpenChange={setOpen}>
       <div className="fixed md:top-4 top-4.5 left-4 z-[99]">
         <SidebarTrigger className="rounded-xl p-4 bg-white/70 text-black shadow-md">
-          <PanelLeftIcon />
+          <HugeiconsIcon icon={SidebarLeftIcon} />
         </SidebarTrigger>
       </div>
 
@@ -67,57 +65,64 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
         className="z-40 transform-gpu will-change-transform"
       >
         <SidebarHeader>
-          {authUser && (
-            <div className="flex items-center gap-2 px-2 py-2.5 md:w-[25vh] w-[18vh] md:justify-end h-[7vh] text-lg font-bold mx-auto justify-center">
+          <div className="flex h-auto p-2 items-center pl-12 pr-1 md:pr-2 font-bold">
+            {loading || !authUser ? (
+              <Skeleton className="w-full h-9 rounded-xl" />
+            ) : (
               <Badge
                 variant="secondary"
-                className="bg-blue-500 text-white text-lg w-full h-full dark:bg-blue-600 flex justify-center items-center"
+                className="bg-blue-500 rounded-xl text-white text-base md:text-lg w-full h-9 dark:bg-blue-600 flex justify-center items-center"
               >
-                <BadgeCheckIcon className="size-6 !w-4 !h-4 shrink-0 mr-1" />
-                {authUser.name}
+                <p>Disposable</p>
               </Badge>
-            </div>
-          )}
+            )}
+          </div>
         </SidebarHeader>
 
-        <SidebarContent>
-          <SidebarMenu>
+        <SidebarContent className="overflow-x-hidden">
+          <div className="px-6 pt-3 pb-1 text-left text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            {loading ? <Skeleton className="h-4 w-14 rounded" /> : "Rooms"}
+          </div>
+          <SidebarMenu className="gap-0">
             {loading
               ? Array.from({ length: 5 }).map((_, idx) => (
                   <Skeleton
                     key={idx}
-                    className="h-10 p-6 md:w-[calc(80vw-60vw)] w-[calc(80vh-53vh)] mx-auto rounded-md"
+                    className="mx-4 my-1 h-12 w-auto rounded-md"
                   />
                 ))
+              : userRooms.length === 0
+              ? (
+                  <div className="px-4 py-6 text-center text-sm text-muted-foreground">
+                    No rooms yet.{" "}
+                    <Link href="/chat/create" className="text-blue-500 hover:underline">
+                      Create one
+                    </Link>
+                  </div>
+                )
               : userRooms.map((room) => (
                   <SidebarMenuItem key={room._id}>
                     <SidebarMenuButton
-                      className="h-10 p-6 md:w-[calc(80vw-60vw)] w-[calc(80vh-53vh)] mx-auto rounded-md"
+                      isActive={selectedRoom?._id === room._id}
+                      className="h-12 w-full rounded-none px-6"
                       onClick={() => handleRoomClick(room._id)}
                     >
-                      <div className="flex items-center px-2 w-full mx-auto text-xl gap-2">
-                        <span className="font-semibold truncate whitespace-nowrap overflow-hidden max-w-[80%]">
+                      <div className="flex min-w-0 w-full items-center gap-2 text-base md:text-lg">
+                        <span className="font-semibold truncate">
                           {room.name}
                         </span>
-                        <ArrowUpRightIcon className="size-6 !w-4 !h-4 shrink-0" />
+                        <HugeiconsIcon icon={ArrowUpRight01Icon} className="size-6 !w-4 !h-4 shrink-0" />
                       </div>
                     </SidebarMenuButton>
+                    <SidebarSeparator className="mx-0" />
                   </SidebarMenuItem>
                 ))}
           </SidebarMenu>
         </SidebarContent>
 
+        <SidebarSeparator />
         <SidebarFooter>
-          <div className="justify-end flex">
-            <MemoizedFooter />
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push("/chat/create")}
-          >
-            + New Room
-          </Button>
+          <UserMenu />
         </SidebarFooter>
       </Sidebar>
 

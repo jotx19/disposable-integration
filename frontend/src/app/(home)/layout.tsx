@@ -5,7 +5,7 @@ import Header from "@/modules/home/ui/navbar";
 
 
 export const metadata: Metadata = {
-  title: "Dispose [:/]",
+  title: "Disposable | Chatroom",
   description: "Lets-dispose",
 };
 

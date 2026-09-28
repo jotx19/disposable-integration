@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import { toast } from "sonner";
+import { useChatStore } from "./useChatStore";
+
+const getErrorMessage = (e: unknown, fallback: string) =>
+  (e as { response?: { data?: { message?: string } } })?.response?.data
+    ?.message ?? fallback;
 
 // Type definitions
 interface User {
@@ -17,11 +22,14 @@ interface Room {
   createdBy: User | null;
   members: User[];
   inviteLink?: string;
+  ttlHours?: number;
+  expiresAt?: string;
+  createdAt?: string;
 }
 
 interface RoomExpiration {
-  timeLeft: number;
-  timestamp: number;
+  // Epoch ms when the room expires.
+  deadline: number;
 }
 
 interface RawMember {
@@ -38,6 +46,9 @@ interface RawRoom {
   createdBy?: RawMember;
   members?: RawMember[];
   inviteLink?: string;
+  ttlHours?: number;
+  expiresAt?: string;
+  createdAt?: string;
 }
 
 interface RoomStore {
@@ -49,13 +60,17 @@ interface RoomStore {
   roomExpirationTimes: Record<string, RoomExpiration>;
 
   fetchRooms: () => Promise<void>;
-  createRoom: (data: { name: string }) => Promise<Room | undefined>;
+  createRoom: (data: { name: string; ttlHours?: number }) => Promise<Room | undefined>;
   joinRoom: (roomCode: string) => Promise<Room | undefined>;
   showToast: (message: string, type?: "success" | "error" | "info") => void;
   getUserRooms: () => Promise<void>;
-  getRoomExpirationTime: (roomCodeOrId: string) => Promise<number | undefined>;
-  updateExpirationTime: (roomCodeOrId: string) => void;
+  getRoomDeadline: (roomCodeOrId: string) => Promise<number | undefined>;
   removeUserFromRoom: (roomCode: string, userId: string) => Promise<void>;
+  deleteRoom: (roomId: string) => Promise<boolean>;
+  leaveRoom: (roomId: string) => Promise<boolean>;
+  updateRoomTtl: (roomId: string, ttlHours: number) => Promise<boolean>;
+  removeRoomLocally: (roomId: string) => void;
+  applyRoomTtl: (roomId: string, ttlHours: number, expiresAt: string) => void;
 }
 
 export const useRoomStore = create<RoomStore>((set, get) => ({
@@ -90,6 +105,8 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
           createdBy: { _id: "", name: "", email: "" },
           members: [],
           inviteLink: res.data.inviteLink,
+          ttlHours: res.data.ttlHours,
+          expiresAt: res.data.expiresAt,
         };
 
         set({
@@ -159,6 +176,9 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
             }
           : null,
         inviteLink: room.inviteLink || undefined,
+        ttlHours: room.ttlHours,
+        expiresAt: room.expiresAt,
+        createdAt: room.createdAt,
       }));
 
       set({ userRooms });
@@ -167,59 +187,49 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
     }
   },
 
-  getRoomExpirationTime: async (roomCodeOrId) => {
-    const currentTime = Date.now();
-    const state = get();
-
-    const cachedExpiration = state.roomExpirationTimes[roomCodeOrId];
-    if (cachedExpiration && currentTime - cachedExpiration.timestamp < 10 * 60 * 1000) {
-      return cachedExpiration.timeLeft;
-    }
+  getRoomDeadline: async (roomCodeOrId) => {
+    const cached = get().roomExpirationTimes[roomCodeOrId];
+    if (cached) return cached.deadline;
 
     try {
-      const url = `/room/${roomCodeOrId}/expiry`;
-      const res = await axiosInstance.get<{ timeLeft: string }>(url);
-      const { timeLeft } = res.data;
-
-      const [hours, minutes, seconds] = timeLeft.split(":").map(Number);
-      const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+      const requestedAt = Date.now();
+      const res = await axiosInstance.get<{ timeLeft?: string }>(
+        `/room/${roomCodeOrId}/expiry`
+      );
+      // Server reports time left, so the deadline is independent of client clock skew.
+      const [hours = 0, minutes = 0, seconds = 0] = (res.data.timeLeft ?? "0:0:0")
+        .split(":")
+        .map(Number);
+      const deadline = requestedAt + (hours * 3600 + minutes * 60 + seconds) * 1000;
 
       set((state) => ({
         roomExpirationTimes: {
           ...state.roomExpirationTimes,
-          [roomCodeOrId]: { timeLeft: totalSeconds, timestamp: currentTime },
+          [roomCodeOrId]: { deadline },
         },
       }));
-
-      return totalSeconds;
+      return deadline;
     } catch {
       toast.error("Failed to fetch room expiration time");
     }
   },
 
-  updateExpirationTime: (roomCodeOrId) => {
-    const state = get();
-    const cachedExpiration = state.roomExpirationTimes[roomCodeOrId];
-
-    if (cachedExpiration) {
-      const timeLeft = cachedExpiration.timeLeft - 1;
-      set((state) => ({
-        roomExpirationTimes: {
-          ...state.roomExpirationTimes,
-          [roomCodeOrId]: {
-            ...cachedExpiration,
-            timeLeft: timeLeft > 0 ? timeLeft : 0,
-          },
-        },
-      }));
-    }
-  },
   removeUserFromRoom: async (roomCode, userId) => {
     try {
       const res = await axiosInstance.post("/room/removeUser", { roomCode, userId });
   
       if (res.data?.message) toast.success(res.data.message);
       else toast.success("User removed");
+
+      const { selectedRoom } = useChatStore.getState();
+      if (selectedRoom?.roomCode === roomCode) {
+        useChatStore.setState({
+          selectedRoom: {
+            ...selectedRoom,
+            members: (selectedRoom.members ?? []).filter((m) => m._id !== userId),
+          },
+        });
+      }
   
       set((state) => ({
         userRooms: state.userRooms.map((r) =>
@@ -240,6 +250,74 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
           : (e as { response?: { data?: { message?: string } } })?.response?.data?.message;
     
       toast.error(message || "Failed to remove user");
+    }
+  },
+
+  deleteRoom: async (roomId) => {
+    try {
+      await axiosInstance.delete(`/room/${roomId}`);
+      get().removeRoomLocally(roomId);
+      toast.success("Room deleted");
+      return true;
+    } catch (e) {
+      toast.error(getErrorMessage(e, "Failed to delete room"));
+      return false;
+    }
+  },
+
+  leaveRoom: async (roomId) => {
+    try {
+      await axiosInstance.post(`/room/${roomId}/leave`);
+      get().removeRoomLocally(roomId);
+      toast.success("You left the room");
+      return true;
+    } catch (e) {
+      toast.error(getErrorMessage(e, "Failed to leave room"));
+      return false;
+    }
+  },
+
+  updateRoomTtl: async (roomId, ttlHours) => {
+    try {
+      const res = await axiosInstance.patch<{ ttlHours: number; expiresAt: string }>(
+        `/room/${roomId}/ttl`,
+        { ttlHours }
+      );
+      get().applyRoomTtl(roomId, res.data.ttlHours, res.data.expiresAt);
+      toast.success("Room lifetime updated");
+      return true;
+    } catch (e) {
+      toast.error(getErrorMessage(e, "Failed to update room lifetime"));
+      return false;
+    }
+  },
+
+  removeRoomLocally: (roomId) => {
+    set((state) => ({
+      userRooms: state.userRooms.filter((r) => r._id !== roomId),
+      rooms: state.rooms.filter((r) => r._id !== roomId),
+    }));
+    const { selectedRoom, setSelectedRoom } = useChatStore.getState();
+    if (selectedRoom?._id === roomId) setSelectedRoom(null);
+  },
+
+  applyRoomTtl: (roomId, ttlHours, expiresAt) => {
+    set((state) => {
+      const room = state.userRooms.find((r) => r._id === roomId);
+      const roomExpirationTimes = { ...state.roomExpirationTimes };
+      delete roomExpirationTimes[roomId];
+      if (room?.roomCode) delete roomExpirationTimes[room.roomCode];
+      return {
+        roomExpirationTimes,
+        userRooms: state.userRooms.map((r) =>
+          r._id === roomId ? { ...r, ttlHours, expiresAt } : r
+        ),
+      };
+    });
+    // A new selectedRoom object makes the header timer refetch the expiry.
+    const { selectedRoom } = useChatStore.getState();
+    if (selectedRoom?._id === roomId) {
+      useChatStore.setState({ selectedRoom: { ...selectedRoom, ttlHours, expiresAt } });
     }
   },
 }));

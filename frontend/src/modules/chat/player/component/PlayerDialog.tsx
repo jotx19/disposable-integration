@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useCallback, useState, useRef } from "react";
-import { Pause, Play, SkipForward, Repeat, Repeat1, Loader2, Volume1, Volume2 } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { PauseIcon, PlayIcon, NextIcon, RepeatIcon, RepeatOne01Icon, Loading03Icon, VolumeLowIcon, VolumeHighIcon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -209,7 +210,7 @@ export default function PlayerDialog({
                   onClick={() => changeVolume(volume - 10)}
                   className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
                 >
-                  <Volume1 className="h-4 w-4" />
+                  <HugeiconsIcon icon={VolumeLowIcon} className="h-4 w-4" />
                 </button>
 
                 <div className="flex items-center gap-[4px]">
@@ -237,7 +238,7 @@ export default function PlayerDialog({
                   onClick={() => changeVolume(volume + 10)}
                   className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
                 >
-                  <Volume2 className="h-4 w-4" />
+                  <HugeiconsIcon icon={VolumeHighIcon} className="h-4 w-4" />
                 </button>
               </div>
 
@@ -248,7 +249,7 @@ export default function PlayerDialog({
                   onClick={() => setRepeat((r) => r === "off" ? "one" : "off")}
                   className={repeat !== "off" ? "text-primary" : "text-muted-foreground"}
                 >
-                  {repeat === "one" ? <Repeat1 className="h-4 w-4" /> : <Repeat className="h-4 w-4" />}
+                  {repeat === "one" ? <HugeiconsIcon icon={RepeatOne01Icon} className="h-4 w-4" /> : <HugeiconsIcon icon={RepeatIcon} className="h-4 w-4" />}
                 </Button>
 
                 <Button
@@ -256,7 +257,7 @@ export default function PlayerDialog({
                   onClick={(e) => onTogglePlay(e)}
                   className="h-11 w-11 rounded-full shadow-md"
                 >
-                  {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 translate-x-0.5" />}
+                  {playing ? <HugeiconsIcon icon={PauseIcon} className="h-5 w-5" /> : <HugeiconsIcon icon={PlayIcon} className="h-5 w-5 translate-x-0.5" />}
                 </Button>
 
                 <Button
@@ -265,7 +266,7 @@ export default function PlayerDialog({
                   disabled={loadingNext || suggestions.length === 0}
                   className="text-muted-foreground"
                 >
-                  {loadingNext ? <Loader2 className="h-4 w-4 animate-spin" /> : <SkipForward className="h-4 w-4" />}
+                  {loadingNext ? <HugeiconsIcon icon={Loading03Icon} className="h-4 w-4 animate-spin" /> : <HugeiconsIcon icon={NextIcon} className="h-4 w-4" />}
                 </Button>
               </div>
             </div>
@@ -281,7 +282,7 @@ export default function PlayerDialog({
             <div className="flex-1 overflow-y-auto px-2 pb-3">
               {loadingSuggestions && (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground py-6 px-2">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <HugeiconsIcon icon={Loading03Icon} className="h-3.5 w-3.5 animate-spin" />
                   Loading suggestions…
                 </div>
               )}
@@ -301,7 +302,7 @@ export default function PlayerDialog({
                     <p className="text-sm font-medium truncate leading-tight">{song.name}</p>
                     <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
                   </div>
-                  <Play className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                  <HugeiconsIcon icon={PlayIcon} className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                 </button>
               ))}
             </div>

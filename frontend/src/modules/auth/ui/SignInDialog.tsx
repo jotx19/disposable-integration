@@ -8,7 +8,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ChevronLeft, Loader2, Eye, EyeOff } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowLeft01Icon, Loading03Icon, ViewIcon, ViewOffIcon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -55,7 +56,7 @@ export default function SignInPage() {
             asChild
           >
             <Link href="/">
-              <ChevronLeft className="h-4 w-4" />
+              <HugeiconsIcon icon={ArrowLeft01Icon} className="h-4 w-4" />
             </Link>
           </Button>
         </div>
@@ -101,9 +102,9 @@ export default function SignInPage() {
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
               {showPassword ? (
-                <EyeOff className="h-4 w-4" />
+                <HugeiconsIcon icon={ViewOffIcon} className="h-4 w-4" />
               ) : (
-                <Eye className="h-4 w-4" />
+                <HugeiconsIcon icon={ViewIcon} className="h-4 w-4" />
               )}
             </button>
           </div>
@@ -128,7 +129,7 @@ export default function SignInPage() {
             className="mt-2 w-1/2 bg-white mx-auto dark:text-black dark:border-black rounded-xl"
             disabled={isLoggingIn}
           >
-            {isLoggingIn ? <Loader2 className="h-4 w-4 animate-spin" /> : "Continue"}
+            {isLoggingIn ? <HugeiconsIcon icon={Loading03Icon} className="h-4 w-4 animate-spin" /> : "Continue"}
           </Button>
         </form>
       </div>

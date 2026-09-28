@@ -9,7 +9,12 @@ export interface AuthUser {
   name: string;
   email: string;
   profilepic?: string;
+  defaultRoomTtlHours?: number;
 }
+
+const getErrorMessage = (e: unknown, fallback: string) =>
+  (e as { response?: { data?: { message?: string } } })?.response?.data
+    ?.message ?? fallback;
 
 interface AuthState {
   authUser: AuthUser | null;
@@ -17,6 +22,8 @@ interface AuthState {
   isLoggingIn: boolean;
   isLoggingInWithGoogle: boolean;
   isUpdatingProfile: boolean;
+  isUpdatingAccount: boolean;
+  isDeletingAccount: boolean;
   isCheckingAuth: boolean;
   onlineUsers: string[];
   socket: Socket | null;
@@ -28,6 +35,8 @@ interface AuthState {
   connectSocket: () => void;
   disconnectSocket: () => void;
   updateProfile: (data: Partial<AuthUser>) => Promise<void>;
+  updateAccount: (data: { name?: string; defaultRoomTtlHours?: number }) => Promise<boolean>;
+  deleteAccount: (confirmation: string) => Promise<boolean>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -36,6 +45,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isLoggingIn: false,
   isLoggingInWithGoogle: false,
   isUpdatingProfile: false,
+  isUpdatingAccount: false,
+  isDeletingAccount: false,
   isCheckingAuth: true,
   onlineUsers: [],
   socket: null,
@@ -131,6 +142,38 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       toast.error("Failed to update profile");
     } finally {
       set({ isUpdatingProfile: false });
+    }
+  },
+
+  updateAccount: async (data) => {
+    set({ isUpdatingAccount: true });
+    try {
+      const res = await axiosInstance.put<AuthUser>("/auth/update-account", data);
+      set({ authUser: res.data });
+      toast.success("Settings saved");
+      return true;
+    } catch (e) {
+      toast.error(getErrorMessage(e, "Failed to save settings"));
+      return false;
+    } finally {
+      set({ isUpdatingAccount: false });
+    }
+  },
+
+  deleteAccount: async (confirmation) => {
+    set({ isDeletingAccount: true });
+    try {
+      await axiosInstance.delete("/auth/account", { data: { confirmation } });
+      localStorage.removeItem("jwt");
+      get().disconnectSocket();
+      set({ authUser: null });
+      toast.success("Your account has been deleted");
+      return true;
+    } catch (e) {
+      toast.error(getErrorMessage(e, "Failed to delete account"));
+      return false;
+    } finally {
+      set({ isDeletingAccount: false });
     }
   },
 }));

@@ -1,6 +1,7 @@
 "use client"
 import { useTheme } from "next-themes"
-import { Sun, Moon } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Sun03Icon, Moon02Icon } from "@hugeicons/core-free-icons"
 import { useEffect, useState } from "react"
 
 export const Footer = () => {
@@ -8,8 +9,8 @@ export const Footer = () => {
   const themes: ("light" | "dark")[] = ["light", "dark"]
 
   const icons = {
-    light: <Sun className="size-3 text-black dark:text-white" />,
-    dark: <Moon className="size-3 text-black dark:text-white" />,
+    light: <HugeiconsIcon icon={Sun03Icon} className="size-3 text-black dark:text-white" />,
+    dark: <HugeiconsIcon icon={Moon02Icon} className="size-3 text-black dark:text-white" />,
   }
 
   const [activeTheme, setActiveTheme] = useState<"light" | "dark">("light")

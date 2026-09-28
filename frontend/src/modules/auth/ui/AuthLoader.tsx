@@ -1,11 +1,12 @@
-import { MessageCircleDashed } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { BubbleChatIcon } from "@hugeicons/core-free-icons";
 
 export default function Preloader() {
   return (
     <div className="flex bg-background items-center justify-center absolute h-full w-full z-[999999] top-0 left-0 right-0">
       <div className="place-items-center space-y-5 grid place-content-center">
         <div className="scale-125 font-medium text-primary">
-          <MessageCircleDashed size={60} className="mx-auto mb-2" />
+          <HugeiconsIcon icon={BubbleChatIcon} size={60} className="mx-auto mb-2" />
         </div>
 
         <div className="relative flex items-center justify-center w-40 h-[6px] mx-auto rounded-full overflow-hidden bg-primary/10">

@@ -1,7 +1,13 @@
 import Room from "../models/room.model.js";
 import Message from "../models/message.model.js";
-import { io } from "../lib/socket.js";
+import { io, getReceiverSocketId } from "../lib/socket.js";
 import User from "../models/user.model.js";
+import {
+  DEFAULT_ROOM_TTL_HOURS,
+  computeExpiry,
+  getRoomExpiry,
+  isValidTtl,
+} from "../lib/roomTtl.js";
 
 const generateRoomCode = () => {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -14,8 +20,10 @@ const generateRoomCode = () => {
 
 export const createRoom = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, ttlHours } = req.body;
     if (!name) return res.status(400).json({ message: "Room name is required" });
+    if (ttlHours !== undefined && !isValidTtl(ttlHours))
+      return res.status(400).json({ message: "Invalid room lifetime" });
 
     let roomCode;
     let roomExists;
@@ -37,6 +45,9 @@ export const createRoom = async (req, res) => {
       members: [req.user._id],
       roomCode,
       inviteLink,
+      ttlHours: Number(
+        ttlHours ?? req.user.defaultRoomTtlHours ?? DEFAULT_ROOM_TTL_HOURS
+      ),
     });
 
     await room.save();
@@ -54,6 +65,8 @@ export const createRoom = async (req, res) => {
       roomCode: room.roomCode,
       roomId: room._id,
       inviteLink: room.inviteLink,
+      ttlHours: room.ttlHours,
+      expiresAt: room.expiresAt,
     });
   } catch (error) {
     console.error("Error creating room:", error);
@@ -168,10 +181,7 @@ export const getRoomExpirationTime = async (req, res) => {
     const room = await Room.findOne(query);
     if (!room) return res.status(404).json({ message: "Room not found" });
 
-    const roomCreationTime = new Date(room.createdAt).getTime();
-    const ttl = 6 * 24 * 60 * 60 * 1000;
-    const expirationTime = roomCreationTime + ttl;
-    const remainingTime = expirationTime - Date.now();
+    const remainingTime = getRoomExpiry(room).getTime() - Date.now();
 
     if (remainingTime <= 0)
       return res.status(200).json({ message: "Room has expired" });
@@ -190,5 +200,121 @@ export const getRoomExpirationTime = async (req, res) => {
   } catch (error) {
     console.error("Error calculating expiration:", error);
     res.status(500).json({ message: "Unable to calculate expiration time" });
+  }
+};
+
+const isMember = (room, userId) =>
+  room.members.some((m) => m.toString() === userId.toString());
+
+// Tell every online member directly, so sidebars update even if the room isn't open.
+const notifyMembers = (room, event, payload, excludeUserId) => {
+  room.members.forEach((memberId) => {
+    if (excludeUserId && memberId.toString() === excludeUserId.toString()) return;
+    const socketId = getReceiverSocketId(memberId.toString());
+    if (socketId) io.to(socketId).emit(event, payload);
+  });
+};
+
+export const deleteRoomAndMessages = async (room, deletedBy) => {
+  notifyMembers(
+    room,
+    "room-deleted",
+    { roomId: room._id.toString(), name: room.name },
+    deletedBy
+  );
+  await Message.deleteMany({ room: room._id });
+  await Room.deleteOne({ _id: room._id });
+};
+
+export const deleteRoom = async (req, res) => {
+  try {
+    const room = await Room.findById(req.params.roomId);
+    if (!room) return res.status(404).json({ message: "Room not found" });
+
+    if (room.createdBy.toString() !== req.user._id.toString())
+      return res
+        .status(403)
+        .json({ message: "Only the room creator can delete this room" });
+
+    await deleteRoomAndMessages(room, req.user._id);
+    res.status(200).json({ message: "Room deleted", roomId: room._id });
+  } catch (error) {
+    console.error("Error deleting room:", error);
+    res.status(500).json({ message: "Unable to delete room" });
+  }
+};
+
+export const leaveRoom = async (req, res) => {
+  try {
+    const room = await Room.findById(req.params.roomId);
+    if (!room) return res.status(404).json({ message: "Room not found" });
+
+    if (!isMember(room, req.user._id))
+      return res.status(400).json({ message: "You are not in this room" });
+
+    if (room.createdBy.toString() === req.user._id.toString())
+      return res.status(400).json({
+        message: "You created this room. Delete it instead of leaving.",
+      });
+
+    room.members = room.members.filter(
+      (m) => m.toString() !== req.user._id.toString()
+    );
+    await room.save();
+
+    const sysMsg = await Message.create({
+      room: room._id,
+      type: "system",
+      text: `${req.user.name} left the chat`,
+    });
+    io.to(room._id.toString()).emit("message", sysMsg);
+
+    res.status(200).json({ message: "Left the room", roomId: room._id });
+  } catch (error) {
+    console.error("Error leaving room:", error);
+    res.status(500).json({ message: "Unable to leave room" });
+  }
+};
+
+export const updateRoomTtl = async (req, res) => {
+  try {
+    const { ttlHours } = req.body;
+    if (!isValidTtl(ttlHours))
+      return res.status(400).json({ message: "Invalid room lifetime" });
+
+    const room = await Room.findById(req.params.roomId);
+    if (!room) return res.status(404).json({ message: "Room not found" });
+
+    if (room.createdBy.toString() !== req.user._id.toString())
+      return res
+        .status(403)
+        .json({ message: "Only the room creator can change its lifetime" });
+
+    const expiresAt = computeExpiry(room.createdAt, ttlHours);
+    if (expiresAt.getTime() <= Date.now())
+      return res.status(400).json({
+        message: "This room is already older than that. Pick a longer lifetime.",
+      });
+
+    room.ttlHours = Number(ttlHours);
+    room.expiresAt = expiresAt;
+    await room.save();
+    await Message.updateMany({ room: room._id }, { expiresAt });
+
+    notifyMembers(room, "room-updated", {
+      roomId: room._id.toString(),
+      ttlHours: room.ttlHours,
+      expiresAt,
+    }, req.user._id);
+
+    res.status(200).json({
+      message: "Room lifetime updated",
+      roomId: room._id,
+      ttlHours: room.ttlHours,
+      expiresAt,
+    });
+  } catch (error) {
+    console.error("Error updating room lifetime:", error);
+    res.status(500).json({ message: "Unable to update room lifetime" });
   }
 };

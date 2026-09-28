@@ -6,7 +6,8 @@ import { useRoomStore } from "@/store/useRoomStore";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
 
 interface JoinPageProps {
   params: Promise<{ roomCode: string }>;
@@ -55,7 +56,7 @@ const JoinRoomPage = ({ params }: JoinPageProps) => {
           className="absolute top-3 left-3 rounded-full"
           onClick={() => router.push("https://disposable.vercel.app")}
         >
-          <ArrowLeft className="h-5 w-5" />
+          <HugeiconsIcon icon={ArrowLeft01Icon} className="h-5 w-5" />
         </Button>
 
         <DotLottieReact

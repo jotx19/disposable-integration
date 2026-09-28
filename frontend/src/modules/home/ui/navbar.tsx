@@ -1,6 +1,7 @@
 "use client";
 
-import { Home, LogIn, LogOut, User } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Home01Icon, Login03Icon, Logout03Icon, UserIcon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -27,7 +28,7 @@ export default function Menu() {
             href="/"
             className="flex items-center justify-center rounded-full"
           >
-            <Home className="h-6 w-6" />
+            <HugeiconsIcon icon={Home01Icon} className="size-6" />
             Home
           </Link>
         </Button>
@@ -35,37 +36,38 @@ export default function Menu() {
         {authUser && (
           <Button
             className={cn(
-              "rounded-xl m-1 group transition",
+              "size-12 rounded-2xl group transition",
               page === "/profile" && "bg-secondary"
             )}
             size="icon"
             variant="ghost"
             onClick={() => router.push("/profile")}
           >
-            <User className="!h-5 !w-5" />
+            <HugeiconsIcon icon={UserIcon} className="size-6" />
           </Button>
         )}
 
         {authUser ? (
           <Button
-            className="rounded-xl m-1 group transition"
+            className="size-12 rounded-full group transition bg-red-500/15 text-red-500 hover:bg-red-500/25 hover:text-red-500"
             size="icon"
             variant="ghost"
+            aria-label="Log out"
             onClick={logout}
           >
-            <LogOut className="!h-5 !w-5" />
+            <HugeiconsIcon icon={Logout03Icon} className="size-6" />
           </Button>
         ) : (
           <Button
             className={cn(
-              "rounded-xl m-1 group transition",
+              "size-12 rounded-full group transition",
               page === "/sign-in" && "bg-secondary"
             )}
             asChild
             size="icon"
           >
             <Link href="/sign-in" className="flex items-center justify-center">
-              <LogIn className="!h-5 !w-5" />
+              <HugeiconsIcon icon={Login03Icon} className="size-6" />
             </Link>
           </Button>
         )}

@@ -28,12 +28,17 @@ export interface Room {
   roomCode?: string;
   createdBy?: User | null;
   inviteLink?: string;
+  ttlHours?: number;
+  expiresAt?: string;
+  createdAt?: string;
 }
 
 interface ChatStore {
   messages: Message[];
   rooms: Room[];
   selectedMessages: string[];
+  // Message whose swipe-to-delete action is revealed; only one at a time.
+  openMessageId: string | null;
   selectedRoom: Room | null;
   isRoomLoading: boolean;
   isMessagesLoading: boolean;
@@ -51,12 +56,14 @@ interface ChatStore {
   deleteSelectedMessages: (ids?: string[]) => Promise<void>;
   addMessageToState: (msg: Message) => void;
   toggleSelectedMessage: (id: string) => void;
+  setOpenMessageId: (id: string | null) => void;
 }
 
 export const useChatStore = create<ChatStore>((set, get) => ({
   messages: [],
   rooms: [],
   selectedMessages: [],
+  openMessageId: null,
   selectedRoom: null,
   isRoomLoading: false,
   isMessagesLoading: false,
@@ -167,6 +174,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       set({
         messages: messages.filter((m) => !toDelete.includes(m._id)),
         selectedMessages: [],
+        openMessageId: null,
       });
     } catch {
       toast.error("Failed to delete selected messages");
@@ -184,4 +192,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         : [...selectedMessages, id],
     });
   },
+
+  setOpenMessageId: (id) => set({ openMessageId: id }),
 }));

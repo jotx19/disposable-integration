@@ -1,31 +1,21 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
-import { useParams } from "next/navigation";
-import { Info, Copy, Link2, Video, PhoneCall } from "lucide-react";
-import { toast } from "sonner";
+import React, { useState } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { InformationCircleIcon, Video01Icon, Call02Icon, UserIcon } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
 
 import { useChatStore } from "@/store/useChatStore";
-import { useRoomStore } from "@/store/useRoomStore";
 import { useCallStore } from "@/store/useCallStore";
+import { useAuthStore } from "@/store/useAuthStore";
 
-import { Badge } from "@/components/ui/badge";
 import { Timer } from "@/modules/chat/ui/timer";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-import { RoomMembersButton } from "./roomMemberButton";
+import RoomSettingsDialog, { type RoomSettingsTab } from "./roomSettingsDialog";
 import { Button } from "@/components/ui/button";
 
 export const ChatHeader: React.FC = () => {
-  const { roomCode } = useParams<{ roomCode: string }>();
-  const { selectedRoom, setSelectedRoom } = useChatStore();
-  const { userRooms } = useRoomStore();
+  const { selectedRoom } = useChatStore();
   const {
     isInCall,
     isMinimized,
@@ -36,36 +26,13 @@ export const ChatHeader: React.FC = () => {
     activeCallInRoom,
   } = useCallStore();
 
-  useEffect(() => {
-    if (!roomCode) return;
-    const room = userRooms.find((r) => r.roomCode === roomCode);
-    if (!room) return;
-    setSelectedRoom(room);
-  }, [roomCode, userRooms, setSelectedRoom]);
+  const { onlineUsers } = useAuthStore();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<RoomSettingsTab>("general");
 
-  const displayRoomCode = useMemo(() => {
-    if (!roomCode) return "";
-    return roomCode.length > 12 ? `${roomCode.slice(0, 12)}…` : roomCode;
-  }, [roomCode]);
-
-  const copyText = async (text: string, label: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.success(`${label} copied`);
-    } catch {
-      toast.error("Copy failed");
-    }
-  };
-
-  const handleCopyInvite = () => {
-    const link = selectedRoom?.inviteLink;
-    if (!link) return toast.error("No invite link available");
-    void copyText(link, "Invite link");
-  };
-
-  const handleCopyName = () => {
-    if (!selectedRoom) return;
-    void copyText(selectedRoom.name, "Room name");
+  const openSettings = (tab: RoomSettingsTab) => {
+    setSettingsTab(tab);
+    setSettingsOpen(true);
   };
 
   const handleCallClick = () => {
@@ -88,16 +55,22 @@ export const ChatHeader: React.FC = () => {
   if (!selectedRoom) return null;
 
   const callIsActive = isInCall || !!activeCallInRoom;
+  const onlineCount = (selectedRoom.members ?? []).filter((m) =>
+    onlineUsers.includes(m._id)
+  ).length;
 
   return (
-    <div className="flex justify-center p-2 bg-transparent">
-      <div className="flex items-center justify-between w-full max-w-6xl">
-        <RoomMembersButton
-          roomId={selectedRoom._id}
-          roomCode={selectedRoom.roomCode}
-          members={selectedRoom.members ?? []}
-          createdBy={selectedRoom.createdBy}
-        />
+    <div className="pointer-events-none flex justify-center p-2 bg-transparent">
+      <div className="pointer-events-none flex items-center justify-between w-full max-w-6xl [&>*]:pointer-events-auto">
+        <Button
+          variant="outline"
+          onClick={() => openSettings("members")}
+          aria-label="Room members"
+          className="flex items-center gap-2 rounded-full mx-11 h-9 px-4 border border-border bg-background/60 dark:bg-background/60 backdrop-blur-xl shadow-sm"
+        >
+          <HugeiconsIcon icon={UserIcon} className="h-4 w-4" />
+          <span className="text-md text-gray-300">{onlineCount}</span>
+        </Button>
 
         <div className="flex items-center gap-2">
           <div className="relative">
@@ -115,7 +88,7 @@ export const ChatHeader: React.FC = () => {
                   : "Start video call"
               }
               className={cn(
-                "flex items-center gap-2 rounded-full backdrop-blur-xl h-9 px-4 transition",
+                "flex items-center gap-2 rounded-full h-9 px-4 transition border border-border bg-background/60 dark:bg-background/60 backdrop-blur-xl shadow-sm",
                 isInCall
                   ? "text-green-400 hover:bg-green-500/10"
                   : activeCallInRoom
@@ -124,83 +97,32 @@ export const ChatHeader: React.FC = () => {
               )}
             >
               {isInCall ? (
-                <PhoneCall className="h-4 w-4" />
+                <HugeiconsIcon icon={Call02Icon} className="h-4 w-4" />
               ) : (
-                <Video className="h-4 w-4" />
+                <HugeiconsIcon icon={Video01Icon} className="h-4 w-4" />
               )}
             </Button>
           </div>
 
-          <Badge variant="secondary" className="md:text-xs flex items-center">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  aria-label="Show room information"
-                  className="p-1 rounded-full hover:bg-white/10 transition"
-                >
-                  <Info className="h-4 w-4" />
-                </button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent
-                side="bottom"
-                align="center"
-                sideOffset={8}
-                collisionPadding={12}
-                className="p-0 w-[calc(100vw-25px)] mx-auto max-w-[20rem] sm:w-80 rounded-2xl"
-              >
-                <div className="px-3 py-2 border-b">
-                  <p className="text-sm font-semibold text-center">
-                    Room Information
-                  </p>
-                </div>
-
-                <div className="px-3 py-3 border-b">
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Room Name
-                  </p>
-                  <div className="h-10 w-full rounded-full border px-3 flex items-center gap-2">
-                    <span className="flex-1 truncate text-sm text-center">
-                      {selectedRoom.name}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleCopyName}
-                      className="shrink-0 h-7 w-7 rounded-full hover:bg-muted transition flex items-center justify-center"
-                      aria-label="Copy room name"
-                    >
-                      <Copy className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="px-3 py-3">
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Invite Link
-                  </p>
-                  <div className="h-10 w-full rounded-full border flex items-center overflow-hidden">
-                    <span className="flex-1 truncate text-sm text-center px-3">
-                      {displayRoomCode}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleCopyInvite}
-                      disabled={!selectedRoom.inviteLink}
-                      className="h-full px-4 border-l flex items-center justify-center bg-white text-black hover:opacity-90 transition disabled:opacity-40 disabled:cursor-not-allowed rounded-none"
-                      aria-label="Copy invite link"
-                    >
-                      <Link2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </Badge>
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="Room settings"
+            onClick={() => openSettings("general")}
+            className="h-9 w-9 rounded-full border border-border bg-background/60 dark:bg-background/60 backdrop-blur-xl shadow-sm"
+          >
+            <HugeiconsIcon icon={InformationCircleIcon} className="h-4 w-4" />
+          </Button>
 
           <Timer room={selectedRoom} />
         </div>
       </div>
+      <RoomSettingsDialog
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        tab={settingsTab}
+        onTabChange={setSettingsTab}
+      />
     </div>
   );
 };

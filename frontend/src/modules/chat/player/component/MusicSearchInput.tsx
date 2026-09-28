@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { getSongsById, getSongsByQuery } from "@/lib/fetch";
 import { Button } from "@/components/ui/button";
-import { Loader2, Play } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Loading03Icon, PlayIcon } from "@hugeicons/core-free-icons";
 import { Textarea } from "@/components/ui/textarea";
 
 type SongImage = { url: string };
@@ -126,7 +127,7 @@ export default function MusicSearchInput({ value, onChange, onPicked }: Props) {
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Search songs!"
-          className="flex tracking-tight resize-none font-mono md:h-20 h-15 border-none focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[120px] overflow-y-auto"
+          className="flex min-w-0 wrap-anywhere tracking-tight resize-none font-mono border-none focus-visible:ring-0 focus-visible:ring-offset-0 min-h-10 md:min-h-20 max-h-[40vh] overflow-x-hidden overflow-y-auto"
           autoComplete="on"
           inputMode="search"
         />
@@ -143,7 +144,7 @@ export default function MusicSearchInput({ value, onChange, onPicked }: Props) {
         <div className="p-2">
           {loading && (
             <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" />
               Searching...
             </div>
           )}
@@ -178,7 +179,7 @@ export default function MusicSearchInput({ value, onChange, onPicked }: Props) {
                     e.stopPropagation();
                     void pickSong(song);
                   }}>
-                    <Play className="h-4 w-4" />
+                    <HugeiconsIcon icon={PlayIcon} className="h-4 w-4" />
                   </Button>
                 </button>
               ))}
