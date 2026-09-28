@@ -1,6 +1,6 @@
 import Room from "../models/room.model.js";
 import Message from "../models/message.model.js";
-import { io, getReceiverSocketId } from "../lib/socket.js";
+import { io, getReceiverSocketId, closeGuestsInRoom } from "../lib/socket.js";
 import User from "../models/user.model.js";
 import {
   DEFAULT_ROOM_TTL_HOURS,
@@ -82,8 +82,13 @@ export const joinRoom = async (req, res) => {
 
     const room = await Room.findOne({ roomCode });
     if (!room) return res.status(404).json({ message: "Room not found" });
-    if (room.members.includes(req.user._id))
-      return res.status(400).json({ message: "Already in room" });
+    // Opening an invite to a room you're already in just takes you there.
+    if (room.members.some((m) => m.toString() === req.user._id.toString()))
+      return res.status(200).json({
+        message: "You're already in this room",
+        roomId: room._id,
+        room,
+      });
 
     room.members.push(req.user._id);
     await room.save();
@@ -222,6 +227,7 @@ export const deleteRoomAndMessages = async (room, deletedBy) => {
     { roomId: room._id.toString(), name: room.name },
     deletedBy
   );
+  closeGuestsInRoom(room._id.toString(), "room_deleted");
   await Message.deleteMany({ room: room._id });
   await Room.deleteOne({ _id: room._id });
 };
@@ -316,5 +322,62 @@ export const updateRoomTtl = async (req, res) => {
   } catch (error) {
     console.error("Error updating room lifetime:", error);
     res.status(500).json({ message: "Unable to update room lifetime" });
+  }
+};
+
+
+// Unauthenticated: just enough for the invite page to decide between guest
+// chat and "sign in to join". Private rooms reveal nothing.
+export const getPublicRoomInfo = async (req, res) => {
+  try {
+    const room = await Room.findOne({ roomCode: req.params.roomCode }).select(
+      "name isPublic members expiresAt ttlHours createdAt"
+    );
+    const expiry = room ? getRoomExpiry(room) : null;
+    if (!room || !room.isPublic || expiry.getTime() <= Date.now()) {
+      return res.status(200).json({ isPublic: false });
+    }
+    res.status(200).json({
+      isPublic: true,
+      name: room.name,
+      memberCount: room.members.length,
+      expiresAt: expiry,
+    });
+  } catch (error) {
+    console.error("Error fetching public room:", error);
+    res.status(500).json({ message: "Unable to fetch room" });
+  }
+};
+
+export const updateRoomVisibility = async (req, res) => {
+  try {
+    const { isPublic } = req.body;
+    if (typeof isPublic !== "boolean")
+      return res.status(400).json({ message: "isPublic must be true or false" });
+
+    const room = await Room.findById(req.params.roomId);
+    if (!room) return res.status(404).json({ message: "Room not found" });
+
+    if (room.createdBy.toString() !== req.user._id.toString())
+      return res
+        .status(403)
+        .json({ message: "Only the room creator can change visibility" });
+
+    room.isPublic = isPublic;
+    await room.save();
+
+    if (!isPublic) closeGuestsInRoom(room._id.toString(), "room_private");
+
+    notifyMembers(
+      room,
+      "room-visibility",
+      { roomId: room._id.toString(), isPublic },
+      req.user._id
+    );
+
+    res.status(200).json({ roomId: room._id, isPublic });
+  } catch (error) {
+    console.error("Error updating room visibility:", error);
+    res.status(500).json({ message: "Unable to update room visibility" });
   }
 };

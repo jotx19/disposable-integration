@@ -60,10 +60,23 @@ interface CallState {
   _stopTimer: () => void;
 }
 
+// STUN alone fails behind strict NATs (most mobile networks, many offices).
+// Set NEXT_PUBLIC_TURN_URL (comma-separated), NEXT_PUBLIC_TURN_USERNAME and
+// NEXT_PUBLIC_TURN_CREDENTIAL to relay calls through a TURN server.
+const TURN_URLS = process.env.NEXT_PUBLIC_TURN_URL?.split(",").map((u) => u.trim()).filter(Boolean);
+
 const ICE_SERVERS: RTCConfiguration = {
   iceServers: [
-    { urls: "stun:stun.l.google.com:19302" },
-    { urls: "stun:stun1.l.google.com:19302" },
+    { urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"] },
+    ...(TURN_URLS?.length
+      ? [
+          {
+            urls: TURN_URLS,
+            username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+            credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
+          },
+        ]
+      : []),
   ],
 };
 
@@ -335,16 +348,7 @@ export const useCallStore = create<CallState>((set, get) => ({
       toast.error(`Could not join: ${reason}`);
       get()._cleanupCall();
     });
-  
-    socket.on("call-active", ({ hostId, roomId }: { hostId: string; roomId: string }) => {
-      if (hostId !== authUser._id) {
-        set({ activeCallInRoom: { hostId, roomId } });
-      }
-    });
-  
-    socket.on("call-inactive", () => {
-      set({ activeCallInRoom: null });
-    });
+    // call-active / call-inactive are handled by the chat store for the open room.
   },
 
   unsubscribeFromCallEvents: () => {
@@ -353,7 +357,6 @@ export const useCallStore = create<CallState>((set, get) => ({
     [
       "incoming-call", "call-answered", "ice-candidate",
       "participants-update", "call-ended", "call-denied",
-      "call-active", "call-inactive",
     ].forEach((ev) => socket.off(ev));
   },
 

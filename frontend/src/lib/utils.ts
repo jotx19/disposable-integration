@@ -13,3 +13,13 @@ export const formatMessageTime = (date: string | Date): string => {
 
   return `${hours}:${minutes}`;
 };
+
+export function getInitials(name?: string) {
+  if (!name) return "?";
+  return name
+    .split(/[\s\-_.]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}

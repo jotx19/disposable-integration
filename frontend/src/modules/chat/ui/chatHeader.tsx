@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { InformationCircleIcon, Video01Icon, Call02Icon, UserIcon } from "@hugeicons/core-free-icons";
+import { InformationCircleIcon, Video01Icon, Call02Icon, UserIcon, GlobalIcon, SquareLock02Icon, Loading03Icon } from "@hugeicons/core-free-icons";
+import { useRoomStore } from "@/store/useRoomStore";
 import { cn } from "@/lib/utils";
 
 import { useChatStore } from "@/store/useChatStore";
@@ -15,7 +16,7 @@ import RoomSettingsDialog, { type RoomSettingsTab } from "./roomSettingsDialog";
 import { Button } from "@/components/ui/button";
 
 export const ChatHeader: React.FC = () => {
-  const { selectedRoom } = useChatStore();
+  const { selectedRoom, roomGuests } = useChatStore();
   const {
     isInCall,
     isMinimized,
@@ -26,7 +27,9 @@ export const ChatHeader: React.FC = () => {
     activeCallInRoom,
   } = useCallStore();
 
-  const { onlineUsers } = useAuthStore();
+  const { onlineUsers, authUser } = useAuthStore();
+  const { setRoomVisibility } = useRoomStore();
+  const [savingVisibility, setSavingVisibility] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<RoomSettingsTab>("general");
 
@@ -55,6 +58,14 @@ export const ChatHeader: React.FC = () => {
   if (!selectedRoom) return null;
 
   const callIsActive = isInCall || !!activeCallInRoom;
+  const isOwner = !!authUser && selectedRoom.createdBy?._id === authUser._id;
+  const isPublic = !!selectedRoom.isPublic;
+
+  const toggleVisibility = async () => {
+    setSavingVisibility(true);
+    await setRoomVisibility(selectedRoom._id, !isPublic);
+    setSavingVisibility(false);
+  };
   const onlineCount = (selectedRoom.members ?? []).filter((m) =>
     onlineUsers.includes(m._id)
   ).length;
@@ -69,10 +80,35 @@ export const ChatHeader: React.FC = () => {
           className="flex items-center gap-2 rounded-full mx-11 h-9 px-4 border border-border bg-background/60 dark:bg-background/60 backdrop-blur-xl shadow-sm"
         >
           <HugeiconsIcon icon={UserIcon} className="h-4 w-4" />
-          <span className="text-md text-gray-300">{onlineCount}</span>
+          <span className="text-md text-gray-300">{onlineCount + roomGuests.length}</span>
         </Button>
 
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={toggleVisibility}
+            disabled={!isOwner || savingVisibility}
+            aria-pressed={isPublic}
+            title={
+              !isOwner
+                ? `This room is ${isPublic ? "public" : "private"}. Only the owner can change it.`
+                : isPublic
+                ? "Anyone with the link can chat as a guest. Click to make private."
+                : "Only members can chat. Click to let anyone with the link join as a guest."
+            }
+            className={cn(
+              "flex items-center gap-1.5 rounded-full h-9 px-3 text-sm border border-border bg-background/60 dark:bg-background/60 backdrop-blur-xl shadow-sm disabled:opacity-100",
+              isPublic ? "text-blue-400 hover:bg-blue-500/10" : "text-muted-foreground hover:bg-white/10",
+              !isOwner && "cursor-default"
+            )}
+          >
+            <HugeiconsIcon
+              icon={savingVisibility ? Loading03Icon : isPublic ? GlobalIcon : SquareLock02Icon}
+              className={cn("h-4 w-4", savingVisibility && "animate-spin")}
+            />
+            <span className="hidden sm:inline">{isPublic ? "Public" : "Private"}</span>
+          </Button>
+
           <div className="relative">
             {callIsActive && (
               <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-background z-10" />

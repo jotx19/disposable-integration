@@ -29,7 +29,12 @@ interface AuthState {
   socket: Socket | null;
 
   checkAuth: () => Promise<void>;
-  signup: (data: { name: string; email: string; password: string }) => Promise<void>;
+  signup: (data: {
+    name: string;
+    email: string;
+    password: string;
+    claimToken?: string;
+  }) => Promise<{ claimedRoomId?: string | null } | null>;
   login: (data: { email: string; password: string }) => Promise<AuthUser | null>;
   logout: () => Promise<void>;
   connectSocket: () => void;
@@ -66,14 +71,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signup: async (data) => {
     set({ isSigningUp: true });
     try {
-      const res = await axiosInstance.post<{ token: string; _id: string; name: string; email: string; profilepic?: string }>("/auth/signup", data);
+      const res = await axiosInstance.post<{
+        token: string;
+        _id: string;
+        name: string;
+        email: string;
+        profilepic?: string;
+        claimedRoomId?: string | null;
+      }>("/auth/signup", data);
       localStorage.setItem("jwt", res.data.token);
       set({ authUser: { _id: res.data._id, name: res.data.name, email: res.data.email, profilepic: res.data.profilepic } });
-      
+
       toast.success("Account created successfully");
       get().connectSocket();
-    } catch {
-      toast.error("Signup failed");
+      return { claimedRoomId: res.data.claimedRoomId };
+    } catch (e) {
+      toast.error(getErrorMessage(e, "Signup failed"));
+      return null;
     } finally {
       set({ isSigningUp: false });
     }
@@ -112,24 +126,42 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   connectSocket: () => {
     const { authUser, socket } = get();
-    if (!authUser || socket?.connected) return;
+    if (!authUser) return;
 
-    const newSocket = io(BASE_URL, { query: { userId: authUser._id } });
+    // Reuse the one socket. Checking `connected` alone raced on slow networks:
+    // a still-connecting socket looked absent, so duplicates were created.
+    if (socket) {
+      if (socket.disconnected) socket.connect();
+      return;
+    }
 
-    newSocket.connect();
-    set({ socket: newSocket });
+    const newSocket = io(BASE_URL, {
+      // Read the token on every (re)connect so it's never stale.
+      auth: (cb) => cb({ token: localStorage.getItem("jwt") }),
+      transports: ["websocket", "polling"],
+      tryAllTransports: true,
+      reconnectionDelayMax: 5000,
+    });
 
     newSocket.on("ONLINE_USERS", (userIds: string[]) => {
       set({ onlineUsers: userIds });
     });
+
+    newSocket.on("connect_error", (err) => {
+      if (err.message === "unauthorized") {
+        // The server rejected the token; retrying won't help until the user signs in again.
+        newSocket.disconnect();
+      }
+    });
+
+    set({ socket: newSocket });
   },
 
   disconnectSocket: () => {
     const socket = get().socket;
-    if (socket?.connected) {
-      socket.disconnect();
-      set({ socket: null, onlineUsers: [] });
-    }
+    socket?.removeAllListeners();
+    socket?.disconnect();
+    set({ socket: null, onlineUsers: [] });
   },
 
   updateProfile: async (data) => {

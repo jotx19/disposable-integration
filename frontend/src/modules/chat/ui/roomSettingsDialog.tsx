@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { getInitials } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useChatStore } from "@/store/useChatStore";
 import { useRoomStore } from "@/store/useRoomStore";
@@ -100,6 +101,7 @@ type RoomLike = {
   createdAt?: string;
   createdBy?: { _id: string; name: string } | null;
   members?: { _id: string; name: string; profilepic?: string }[];
+  isPublic?: boolean;
 };
 
 function GeneralTab({ room, onClose }: { room: RoomLike; onClose: () => void }) {
@@ -221,7 +223,11 @@ function InviteTab({ room }: { room: RoomLike }) {
     <div className="space-y-2">
       <SettingsHeader
         title="Invite & share"
-        description="Anyone with the link or code can join while the room is alive."
+        description={
+          room.isPublic
+            ? "This room is public: anyone with the link can chat right away as a guest, or sign in to join as a member."
+            : "Signed-in people with the link or code can join while the room is alive."
+        }
       />
 
       <SettingsRow label="Share" description="Send the invite through any app.">
@@ -274,6 +280,7 @@ function InviteTab({ room }: { room: RoomLike }) {
 function MembersTab({ room }: { room: RoomLike }) {
   const { authUser, onlineUsers } = useAuthStore();
   const { removeUserFromRoom } = useRoomStore();
+  const { roomGuests } = useChatStore();
   const members = room.members ?? [];
   const creatorId = room.createdBy?._id;
   const isOwner = !!authUser && creatorId === authUser._id;
@@ -301,8 +308,8 @@ function MembersTab({ room }: { room: RoomLike }) {
                 <div className="relative shrink-0">
                   <Avatar className="size-9">
                     <AvatarImage src={member.profilepic || undefined} alt={member.name} />
-                    <AvatarFallback className="bg-blue-500 text-white text-xs">
-                      {member.name.slice(0, 2).toUpperCase()}
+                    <AvatarFallback>
+                      {getInitials(member.name)}
                     </AvatarFallback>
                   </Avatar>
                   <span
@@ -344,6 +351,33 @@ function MembersTab({ room }: { room: RoomLike }) {
           );
         })}
       </ul>
+
+      {roomGuests.length > 0 && (
+        <>
+          <div className="pt-6 pb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            Guests here now · {roomGuests.length}
+          </div>
+          <Separator />
+          <ul>
+            {roomGuests.map((guest, i) => (
+              <li key={guest.id}>
+                {i > 0 && <Separator />}
+                <div className="flex items-center gap-3 py-3">
+                  <Avatar className="size-9">
+                    <AvatarFallback>{getInitials(guest.username)}</AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium">{guest.username}</div>
+                    <div className="text-xs text-muted-foreground">
+                      Guest
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 }

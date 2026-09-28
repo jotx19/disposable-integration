@@ -10,23 +10,27 @@ import {
 } from "framer-motion";
 import { useChatStore } from "@/store/useChatStore";
 import { useAuthStore } from "@/store/useAuthStore";
-import { formatMessageTime } from "@/lib/utils";
+import { formatMessageTime, getInitials } from "@/lib/utils";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Delete02Icon } from "@hugeicons/core-free-icons";
-import EmojiAvatar from "@/components/ui/EmojiAvatar";
-import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Message {
   _id: string;
   type?: "user" | "system";
   text?: string;
-  sender: string | { _id: string; name?: string; profilepic?: string };
+  sender?: string | { _id: string; name?: string; profilepic?: string } | null;
   createdAt: string;
   image?: string;
+  guest?: boolean;
 }
 
 interface ChatMessageProps {
   message: Message;
+  // Who is reading. Defaults to the signed-in user; the guest page passes its guest id.
+  viewerId?: string;
+  // Guests can't delete, so their own bubbles render without swipe actions.
+  canDeleteOwn?: boolean;
 }
 
 // Width of the revealed delete action, and how far a swipe must go to open it / delete outright.
@@ -162,10 +166,15 @@ function SwipeableOwnMessage({ message }: { message: Message }) {
   );
 }
 
-export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
+export const ChatMessage: React.FC<ChatMessageProps> = ({
+  message,
+  viewerId,
+  canDeleteOwn = true,
+}) => {
   const { authUser } = useAuthStore();
+  const me = viewerId ?? authUser?._id;
 
-  if (!authUser) return null;
+  if (!me) return null;
 
   if (message.type === "system") {
     return (
@@ -175,37 +184,42 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     );
   }
 
-  const senderId =
-    typeof message.sender === "string" ? message.sender : message.sender._id;
+  const sender = typeof message.sender === "object" ? message.sender : null;
+  const senderId = typeof message.sender === "string" ? message.sender : sender?._id;
 
-  if (senderId === authUser._id) {
-    return <SwipeableOwnMessage message={message} />;
+  if (senderId === me) {
+    if (canDeleteOwn && !message.guest) {
+      return <SwipeableOwnMessage message={message} />;
+    }
+    return (
+      <div className="flex justify-end">
+        <div className="max-w-[70%]">
+          <MessageBubble message={message} isAuthUser />
+        </div>
+      </div>
+    );
   }
 
-  const senderName =
-    typeof message.sender === "string" ? "Unknown" : message.sender.name;
-  const senderPic =
-    typeof message.sender === "string" || !message.sender?.profilepic
-      ? null
-      : message.sender.profilepic;
+  const senderName = sender?.name ?? "Unknown";
+  const senderPic = sender?.profilepic || null;
 
   return (
     <div className="flex items-end justify-start">
       <div className="flex flex-col items-center w-10 mr-2">
-        <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gray-200">
-          {senderPic ? (
-            <Image
-              src={senderPic}
-              alt={senderName || "User"}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <EmojiAvatar className="w-full h-full" />
+        <Avatar className="h-10 w-10">
+          {senderPic && (
+            <AvatarImage src={senderPic} alt={senderName || "User"} className="object-cover" />
           )}
-        </div>
+          <AvatarFallback>{getInitials(senderName)}</AvatarFallback>
+        </Avatar>
         <span className="text-xs text-gray-500 mt-1 text-center truncate w-10">
           {senderName || "Unknown"}
         </span>
+        {message.guest && (
+          <span className="text-[9px] font-medium uppercase tracking-wider text-amber-500">
+            guest
+          </span>
+        )}
       </div>
 
       <div className="max-w-[70%]">

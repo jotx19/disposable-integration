@@ -21,15 +21,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuthStore } from "@/store/useAuthStore";
+import { getInitials } from "@/lib/utils";
 import SettingsDialog from "@/modules/settings/ui/settingsDialog";
-
-const getInitials = (name: string) =>
-  name
-    .split(/[\s\-_]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
 
 export default function UserMenu() {
   const router = useRouter();
@@ -53,7 +46,7 @@ export default function UserMenu() {
         <button className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent transition outline-none">
           <Avatar className="size-9">
             <AvatarImage src={authUser.profilepic || undefined} alt={authUser.name} />
-            <AvatarFallback className="bg-blue-500 text-white text-sm">
+            <AvatarFallback className="text-sm">
               {initials}
             </AvatarFallback>
           </Avatar>
@@ -76,7 +69,7 @@ export default function UserMenu() {
         <DropdownMenuLabel className="flex items-center gap-3 font-normal">
           <Avatar className="size-9">
             <AvatarImage src={authUser.profilepic || undefined} alt={authUser.name} />
-            <AvatarFallback className="bg-blue-500 text-white text-sm">
+            <AvatarFallback className="text-sm">
               {initials}
             </AvatarFallback>
           </Avatar>

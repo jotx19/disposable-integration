@@ -25,6 +25,7 @@ interface Room {
   ttlHours?: number;
   expiresAt?: string;
   createdAt?: string;
+  isPublic?: boolean;
 }
 
 interface RoomExpiration {
@@ -49,6 +50,7 @@ interface RawRoom {
   ttlHours?: number;
   expiresAt?: string;
   createdAt?: string;
+  isPublic?: boolean;
 }
 
 interface RoomStore {
@@ -71,6 +73,11 @@ interface RoomStore {
   updateRoomTtl: (roomId: string, ttlHours: number) => Promise<boolean>;
   removeRoomLocally: (roomId: string) => void;
   applyRoomTtl: (roomId: string, ttlHours: number, expiresAt: string) => void;
+  setRoomVisibility: (roomId: string, isPublic: boolean) => Promise<boolean>;
+  applyRoomVisibility: (roomId: string, isPublic: boolean) => void;
+  // Room to open once /chat has loaded (after joining or saving a guest chat).
+  pendingRoomId: string | null;
+  setPendingRoomId: (roomId: string | null) => void;
 }
 
 export const useRoomStore = create<RoomStore>((set, get) => ({
@@ -80,6 +87,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   isJoiningRoom: false,
   createdRoomCode: "",
   roomExpirationTimes: {},
+  pendingRoomId: null,
 
   fetchRooms: async () => {
     try {
@@ -134,7 +142,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       if (res.data?.message) 
       toast.success(res.data.message);
     
-      set({ userRooms: [...get().userRooms, room] });
+      set({ userRooms: [...get().userRooms.filter((r) => r._id !== room._id), room] });
 
       return room;
     } catch {
@@ -179,6 +187,7 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
         ttlHours: room.ttlHours,
         expiresAt: room.expiresAt,
         createdAt: room.createdAt,
+        isPublic: room.isPublic ?? false,
       }));
 
       set({ userRooms });
@@ -320,4 +329,28 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       useChatStore.setState({ selectedRoom: { ...selectedRoom, ttlHours, expiresAt } });
     }
   },
+
+  setRoomVisibility: async (roomId, isPublic) => {
+    try {
+      await axiosInstance.patch(`/room/${roomId}/visibility`, { isPublic });
+      get().applyRoomVisibility(roomId, isPublic);
+      toast.success(isPublic ? "Room is now public" : "Room is now private");
+      return true;
+    } catch (e) {
+      toast.error(getErrorMessage(e, "Failed to change visibility"));
+      return false;
+    }
+  },
+
+  applyRoomVisibility: (roomId, isPublic) => {
+    set((state) => ({
+      userRooms: state.userRooms.map((r) => (r._id === roomId ? { ...r, isPublic } : r)),
+    }));
+    const { selectedRoom } = useChatStore.getState();
+    if (selectedRoom?._id === roomId) {
+      useChatStore.setState({ selectedRoom: { ...selectedRoom, isPublic } });
+    }
+  },
+
+  setPendingRoomId: (roomId) => set({ pendingRoomId: roomId }),
 }));

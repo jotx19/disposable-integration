@@ -30,19 +30,6 @@ export function SectionHeading({
   );
 }
 
-export function Hashtag({ tag, className }: { tag: string; className?: string }) {
-  return (
-    <span
-      className={cn(
-        "rounded-md bg-yellow-200/70 px-1.5 py-0.5 font-mono text-xs text-yellow-950 dark:bg-yellow-300/15 dark:text-yellow-200",
-        className
-      )}
-    >
-      #{tag}
-    </span>
-  );
-}
-
 const pad = (n: number) => n.toString().padStart(2, "0");
 
 export function formatCountdown(totalSeconds: number) {

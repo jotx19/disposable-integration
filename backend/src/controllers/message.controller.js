@@ -2,7 +2,7 @@ import Message from '../models/message.model.js';
 import Room from '../models/room.model.js';
 import cloudinary from '../lib/cloudinary.js';
 import { getReceiverSocketId } from '../lib/socket.js';
-import { io } from '../lib/socket.js';
+import { io, getGuestMessages } from '../lib/socket.js';
 
 export const sendMessage = async (req, res) => {
   try {
@@ -32,6 +32,8 @@ export const sendMessage = async (req, res) => {
     });
 
     await message.save();
+    // Send the sender's name along so other clients (and guests) don't show "Unknown".
+    await message.populate('sender', 'name profilepic');
     io.to(roomId).emit('message', message);
 
     res.status(201).json(message);
@@ -43,11 +45,20 @@ export const sendMessage = async (req, res) => {
 export const getRoomMessages = async (req, res) => {
   try {
     const { roomId } = req.params;
-    const messages = await Message.find({ room: roomId })
-      .populate('sender', 'name email profilepic')
-      .sort({ createdAt: 1 });
+    const isMember = await Room.exists({ _id: roomId, members: req.user._id });
+    if (!isMember) return res.status(403).json({ error: 'Not a member of this room' });
 
-    res.status(200).json(messages);
+    const messages = await Message.find({ room: roomId })
+      .populate('sender', 'name profilepic')
+      .sort({ createdAt: 1 })
+      .lean();
+
+    // Include live, unsaved guest messages so members see the whole conversation.
+    const combined = [...messages, ...getGuestMessages(roomId)].sort(
+      (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+    );
+
+    res.status(200).json(combined);
   } catch (error) {
     res.status(500).json({ error: 'Failed to get messages' });
   }

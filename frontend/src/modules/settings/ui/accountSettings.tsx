@@ -17,6 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { getInitials } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import { SettingsHeader, SettingsRow } from "./settingsSection";
 
@@ -56,8 +57,8 @@ export default function AccountSettings({ onClose }: { onClose: () => void }) {
         <div className="flex items-center gap-3">
           <Avatar className="size-10">
             <AvatarImage src={authUser.profilepic || undefined} alt={authUser.name} />
-            <AvatarFallback className="bg-blue-500 text-white">
-              {authUser.name.slice(0, 2).toUpperCase()}
+            <AvatarFallback>
+              {getInitials(authUser.name)}
             </AvatarFallback>
           </Avatar>
           <Button

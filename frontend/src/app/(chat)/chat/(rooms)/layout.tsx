@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import { SidebarInset } from "@/components/ui/sidebar";
 import { useRoomStore } from "@/store/useRoomStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useChatStore } from "@/store/useChatStore";
 import { CallDialog } from "@/modules/chat/ui/callDialog"; 
 import { toast } from "sonner";
 
@@ -14,8 +15,14 @@ interface Props {
 }
 
 const ChatLayout: React.FC<Props> = ({ children }) => {
-  const { userRooms, getUserRooms, removeRoomLocally, applyRoomTtl } =
-    useRoomStore();
+  const {
+    userRooms,
+    getUserRooms,
+    removeRoomLocally,
+    applyRoomTtl,
+    applyRoomVisibility,
+    setPendingRoomId,
+  } = useRoomStore();
   const { authUser, checkAuth, socket } = useAuthStore();
   const [loading, setLoading] = React.useState(true);
 
@@ -24,9 +31,17 @@ const ChatLayout: React.FC<Props> = ({ children }) => {
       setLoading(true);
       await Promise.allSettled([getUserRooms(), checkAuth()]);
       setLoading(false);
+
+      // Open the room we were sent here for (just joined, or a saved guest chat).
+      const { pendingRoomId, userRooms: rooms } = useRoomStore.getState();
+      if (pendingRoomId) {
+        setPendingRoomId(null);
+        const room = rooms.find((r) => r._id === pendingRoomId);
+        if (room) useChatStore.getState().setSelectedRoom({ ...room, members: room.members ?? [] });
+      }
     };
     fetchData();
-  }, [getUserRooms, checkAuth]);
+  }, [getUserRooms, checkAuth, setPendingRoomId]);
 
   // Keep the sidebar in sync when another member deletes a room or changes its lifetime.
   React.useEffect(() => {
@@ -45,13 +60,18 @@ const ChatLayout: React.FC<Props> = ({ children }) => {
       expiresAt: string;
     }) => applyRoomTtl(roomId, ttlHours, expiresAt);
 
+    const onVisibility = ({ roomId, isPublic }: { roomId: string; isPublic: boolean }) =>
+      applyRoomVisibility(roomId, isPublic);
+
     socket.on("room-deleted", onDeleted);
     socket.on("room-updated", onUpdated);
+    socket.on("room-visibility", onVisibility);
     return () => {
       socket.off("room-deleted", onDeleted);
       socket.off("room-updated", onUpdated);
+      socket.off("room-visibility", onVisibility);
     };
-  }, [socket, removeRoomLocally, applyRoomTtl]);
+  }, [socket, removeRoomLocally, applyRoomTtl, applyRoomVisibility]);
 
   return (
     <ThemeProvider>

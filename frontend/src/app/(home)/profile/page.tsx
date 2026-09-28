@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import EmojiAvatar from "@/components/ui/EmojiAvatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import AuthLoader from "@/modules/auth/ui/AuthLoader";
@@ -47,7 +48,12 @@ const ProfilePage = () => {
     <div className="max-w-6xl mx-auto w-full mt-20 p-6">
       <Card className="p-6 border rounded-lg">
         <div className="flex items-center gap-6">
-          <EmojiAvatar className="w-20 h-20" />
+          <Avatar className="h-20 w-20">
+            {authUser.profilepic && (
+              <AvatarImage src={authUser.profilepic} alt={authUser.name} className="object-cover" />
+            )}
+            <AvatarFallback className="text-xl">{getInitials(authUser.name)}</AvatarFallback>
+          </Avatar>
           <div className="flex flex-col">
             <h2 className="text-xl font-semibold">{authUser.name}</h2>
             <p className="text-gray-500 text-sm">{authUser.email}</p>

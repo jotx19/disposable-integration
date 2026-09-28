@@ -7,14 +7,12 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { ContainerIcon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import Silk from "@/modules/home/ui/silk";
-import {  useElapsedSeconds } from "./shared";
 
 const HERO_TAGS = ["bug-bash", "pr-review", "hackathon", "incident"];
 
 export default function Hero() {
   const [roomCode, setRoomCode] = useState("");
   const router = useRouter();
-  const elapsed = useElapsedSeconds();
 
   const handleJoin = () => {
     const code = roomCode.trim();

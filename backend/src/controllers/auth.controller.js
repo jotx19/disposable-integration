@@ -4,26 +4,32 @@ import cloudinary from "../lib/cloudinary.js";
 import { generateToken } from "../lib/utils.js";
 import Room from "../models/room.model.js";
 import Message from "../models/message.model.js";
-import { io } from "../lib/socket.js";
+import { io, claimGuestSession } from "../lib/socket.js";
 import { isValidTtl } from "../lib/roomTtl.js";
 import { deleteRoomAndMessages } from "./room.controller.js";
 
 const USERNAME_PATTERN = /^[a-zA-Z0-9._-]{3,30}$/;
 
 export const signup = async (req, res)=>{
-    const {name, password, email} = req.body;
+    const {name, password, email, claimToken} = req.body;
     try {
-        if (password.length<6){
+        if (!password || password.length<6){
             return res.status(400).json({message: "Enter more than 6 digits"});
+        }
+        if (!USERNAME_PATTERN.test(String(name ?? "").trim())) {
+            return res.status(400).json({message: "Username must be 3-30 characters: letters, numbers, dots, dashes or underscores"});
         }
         const user = await User.findOne({email})
         if (user) return res.status(400).json({message: "User already Registered"});
+        if (await User.exists({ name: String(name).trim() })) {
+            return res.status(409).json({message: "That username is already taken"});
+        }
 
         const salt = await bcrypt.genSalt(10)
         const hashpass = await bcrypt.hash(password, salt)
 
         const newUser = new User({
-            name,
+            name: String(name).trim(),
             email,
             password:hashpass,
         })
@@ -33,12 +39,23 @@ export const signup = async (req, res)=>{
 
             const token = generateToken(newUser._id)
 
+            // A guest saving their chat: move their live messages into the room.
+            let claimedRoomId = null;
+            if (claimToken) {
+                try {
+                    claimedRoomId = await claimGuestSession(String(claimToken), newUser);
+                } catch (error) {
+                    console.log("Error claiming guest chat", error);
+                }
+            }
+
             res.status(201).json({
              token,
              _id: newUser._id,
              name: newUser.name,
              email: newUser.email,
-             profilepic: newUser.profilepic
+             profilepic: newUser.profilepic,
+             claimedRoomId,
         });
         } else (
             res.status(400).json({message: "Invalid User Data"})

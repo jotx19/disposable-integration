@@ -31,6 +31,8 @@ const roomSchema = new mongoose.Schema(
       default: DEFAULT_ROOM_TTL_HOURS,
     },
     expiresAt: { type: Date },
+    // Public rooms let anyone with the link chat as an unsaved guest.
+    isPublic: { type: Boolean, default: false },
   },
   {
     timestamps: true,

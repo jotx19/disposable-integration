@@ -1,5 +1,5 @@
 import express from 'express';
-import { createRoom, deleteRoom, getRoomExpirationTime, getUserRooms, joinRoom, leaveRoom, removeUser, updateRoomTtl } from '../controllers/room.controller.js';
+import { createRoom, deleteRoom, getPublicRoomInfo, getRoomExpirationTime, getUserRooms, joinRoom, leaveRoom, removeUser, updateRoomTtl, updateRoomVisibility } from '../controllers/room.controller.js';
 import { protectRoute } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
@@ -13,5 +13,7 @@ router.post("/removeUser", protectRoute, removeUser);
 router.delete("/:roomId", protectRoute, deleteRoom);
 router.post("/:roomId/leave", protectRoute, leaveRoom);
 router.patch("/:roomId/ttl", protectRoute, updateRoomTtl);
+router.patch("/:roomId/visibility", protectRoute, updateRoomVisibility);
+router.get("/public/:roomCode", getPublicRoomInfo);
 
 export default router;
